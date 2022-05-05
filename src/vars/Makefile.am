@@ -46,6 +46,7 @@ noinst_HEADERS =                            \
 	IPrint.h                            \
         LaserFreq.h                         \
         LaserAmp.h                          \
+        LaserEnvelope.h                     \
 	MatrixLoc.h                         \
 	MDIter.h                            \
 	Memory.h                            \
