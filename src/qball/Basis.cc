@@ -535,14 +535,14 @@ bool Basis::resize(const UnitCell& cell, const UnitCell& refcell,
     }
   }
 
-//#if DEBUG
+#if DEBUG
   cout << " hmin/hmax: " << hmin << " / " << hmax << endl;
   cout << " kmin/kmax: " << kmin << " / " << kmax << endl;
   cout << " lmin/lmax: " << lmin << " / " << lmax << endl;
   cout << " hmin/hmax used: " << hmin_used << " / " << hmax_used << endl;
   cout << " kmin/kmax used: " << kmin_used << " / " << kmax_used << endl;
   cout << " lmin/lmax used: " << lmin_used << " / " << lmax_used << endl;
-//#endif
+#endif
 
   idxmax_[0] = hmax_used;
   idxmin_[0] = hmin_used;
