@@ -1,0 +1,23 @@
+# -*- coding: utf-8 mode: shell-script -*-
+# $Id: 01-carbon_atom.test 13244 2015-02-28 23:19:28Z dstrubbe $
+
+Test       : Hydrogen
+Program    : qball
+TestGroups : short-run
+Enabled    : Yes
+
+ExtraFile  : H_HSCV_PBE-1.0.xml
+Input      : hydrogen.inp
+Reference  : hydrogen.xml
+
+match ; ekin    ; GREPFIELD(out, '<ekin>',   2) ;  0.36677394
+match ; econf   ; GREPFIELD(out, '<econf>',  2) ;  0.00000000
+match ; eps     ; GREPFIELD(out, '<eps>',    2) ; -0.33052529
+match ; enl     ; GREPFIELD(out, '<enl>',    2) ;  0.00000000
+match ; ecoul   ; GREPFIELD(out, '<ecoul>',  2) ; -0.23498029
+match ; exc     ; GREPFIELD(out, '<exc>',    2) ; -0.23536847
+match ; esr     ; GREPFIELD(out, '<esr>',    2) ;  0.00000000
+match ; eself   ; GREPFIELD(out, '<eself>',  2) ;  0.24178320
+match ; ets     ; GREPFIELD(out, '<ets>',    2) ;  0.00000000
+match ; etotal  ; GREPFIELD(out, '<etotal>', 2) ; -0.43410012
+
