@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 INSTALL
 Makefile.in
 aclocal.m4
@@ -55,4 +54,3 @@ src/tests/test**
 *.exe
 *.out
 *.app
->>>>>>> main
