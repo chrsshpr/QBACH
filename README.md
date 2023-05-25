@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Qball
 
 ## Installing
@@ -87,3 +88,7 @@ The input file can be specified either as an argument or as stdin to qball, e.g.
 Qball is licensed under the terms of the [GPL v3 License](/COPYING).
 
 ``LLNL-CODE-635376``
+=======
+# QBACH
+QB@LL at UNC Chapel Hill 
+>>>>>>> main
