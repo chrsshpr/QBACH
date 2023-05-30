@@ -1,6 +1,16 @@
 # QBACH
 QB@LL at UNC Chapel Hill 
 
+QBACH is an extension of the QB@LL code developed at LLNL, which was originally adapted from the Qbox code developed by Francois Gygi.
+
+Development of QB@LL at LNLL was done by Xavier Andrade, Alfredo A. Correa and Erik Draeger
+
+Information on the most recent version of QBOX is provided here http://qboxcode.org/doc/html/usage/intro.html#
+
+Development of QB@LL at LNLL was stopped, continued development of the code at UNC Chapel Hill will continue here.
+
+Now Xavier Andrade and Alfredo A. Correa are developing INQ, a GPU compatible electronic structure code.
+
 ## Installing on dogwood
    ```
 autoreconf -i
