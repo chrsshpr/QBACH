@@ -1,5 +1,17 @@
 # QBACH
-QB@LL at UNC Chapel Hill 
+Qbox @ Chapel Hill 
+
+Qb@ll (Qbox @ Livermore Lab) code had been maintained at LLNL as a branch of the original/official QBox code, developed by Francois Gygi. Information on the Qbox code is found here http://qboxcode.org/doc/html/usage/intro.html#. 
+Qb@ll development was discontinued at LLNL in order to shift the focus to the new GPU-enabled INQ code. 
+Further development of the Qb@ll branch, particularly for the RT-TDDFT implementation, is currently continued at UNC Chapel Hill under a new branch name, Qb@ch (Qbox @ Chapel Hill).
+
+Qbox code reference:
+F. Gygi, Architecture of Qbox: A scalable first-principles molecular dynamics code, IBM J. Res. Dev. 52, 1.2 (2008).
+
+RT-TDDFT implementation in Qb@ll:
+A. Schleife, E. W. Draeger, V. M. Anisimov, A. A. Correa, and Y. Kanai, Quantum dynamics simulation of electrons in materials on high-performance computers, Comput. Sci. Eng. 16, 5 (2014).
+
+E. W. Draeger, X. Andrade, J. A. Gunnels, A. Bhatele, A. Schleife, and A. A. Correa, Massively parallel first-principles simulation of electron dynamics in materials, J. Parallel Distrib. Comput. 106, 205 (2017).
 
 ## Installing on dogwood
    ```
