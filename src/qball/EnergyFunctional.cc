@@ -412,6 +412,7 @@ void EnergyFunctional::update_vhxc(void) {
   const double omega_inv = 1.0 / omega;
   const double *const g2i = vbasis_->g2i_ptr();
   const double fpi = 4.0 * M_PI;
+  const double tpi = 2.0 * M_PI;
   const int ngloc = vbasis_->localsize();
   double tsum[2];
   tsum[0] = 0.0;
@@ -528,6 +529,49 @@ void EnergyFunctional::update_vhxc(void) {
   
   // Hartree energy
   ehart_ = 0.0;
+
+//YY
+  if (true && s_.ctrl.isolated_electrostatic == "mt" && vbasis_->context().mype() == 0)
+  {
+    cout << "isolated electrostatic interaction by MT method" << endl;
+    cout << vft->np0() << " " << vft->np1()  << " " << vft->np2() << endl;
+    double alpha = 2.9;
+    double upperbound = 1.0;
+    double ecutrho = wf_.ecut() * 2.0 * 4.0; // in Ry unit to be compared with QE code
+    double beta = 0.0;
+    while( upperbound >1.0e-7 ) {
+      alpha = alpha - 0.1;
+      if (alpha < 0.0 ) 
+        cout << "optimal alpha not found for isolated electrostatic MT method" << endl;
+      upperbound = 2.0 * sqrt ( 2.0 * alpha / tpi ) * 
+                        erfc ( sqrt ( ecutrho / 4.0 / alpha) );
+    }
+    beta = 0.5 / alpha;
+    cout << "alpha " << alpha << " beta " << beta  << " ecutrho " << ecutrho << endl ;
+    //int idx0 = vft->np0() * vft->np1() * vft->np2_loc(); // equal to np012loc()
+    int idx0 = vft->np2_first();
+    int idx, i, j, k;
+    D3vector r;
+    cout << "idx0 " << idx0 << endl;
+    cout << "smooth_coulomb_r " << smooth_coulomb_r(0.5,alpha) << endl;
+    for(int ir = 0; ir < vft->np012loc(); ir++) {
+      idx = idx0 + ir;
+      k = idx / ( vft->np0() * vft->np1() );
+      idx = idx - ( vft->np0() * vft->np1() ) * k;
+      j = idx / vft->np0();
+      idx = idx - vft->np0() * j;
+      i = idx;
+      r = cell.a(0) / vft->np0() * i 
+         + cell.a(1) /vft->np1() * j
+         + cell.a(2) /vft->np2() * k;
+        
+      //cout << i << " " << j << " " << k << endl;
+      //cell.a(0)
+    }
+    cout << cell.a(0) << " " << cell.a(1) << " " << cell.a(2) << endl;
+    
+  }
+//YY
 
   if ( s_.ctrl.esm_bc == "" )
   {
@@ -2256,7 +2300,31 @@ void EnergyFunctional::print_memory(ostream&os, double& totsum, double& locsum) 
   int kmultloc = wf_.nkptloc();
   nlp[0][0]->print_memory(os,kmult,kmultloc,totsum,locsum);
 }
-  
+
+//YY 
+double EnergyFunctional::smooth_coulomb_r(double r, double alpha)
+{
+  const double pi = M_PI;
+  if ( r > 1.0e-6 ) {
+    return erf(sqrt(alpha)*r)/r;
+  }
+  else {
+    return 2.0/sqrt(pi)*sqrt(alpha);
+  }
+}
+
+double EnergyFunctional::smooth_coulomb_g(double q2, double alpha, double beta)
+{
+  const double fpi = 4.0 * M_PI;
+  if ( q2 > 1.0e-6 ) {
+    return fpi * exp(-q2/4.0/alpha)/q2;
+  }
+  else {
+    return -1.0 * fpi * (1.0/4.0/alpha + 2.0 * beta/4.0);
+  }
+}
+//YY
+ 
 ////////////////////////////////////////////////////////////////////////////////
 ostream& operator<< ( ostream& os, const EnergyFunctional& e )
 { 

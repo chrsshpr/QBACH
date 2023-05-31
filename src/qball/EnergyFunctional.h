@@ -106,6 +106,11 @@ class EnergyFunctional
   valarray<double> sigma_ekin,sigma_econf,sigma_eps,sigma_ehart,sigma_exc, sigma_vdw,
     sigma_enl, sigma_esr, sigma;
 
+  // YY: for isolated MT 
+  double smooth_coulomb_r(double r, double alpha);
+  double smooth_coulomb_g(double q2, double alpha, double beta);
+  // YY 
+
   public:
 
   //const XCPotential* xcp() { return xcp; }

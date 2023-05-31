@@ -149,6 +149,7 @@ using namespace std;
 #include <vars/WFPhaseRealVar.h>
 #include <vars/Xc.h>
 #include <vars/AbsorbingPotentialVar.h>
+#include <vars/IsolatedElectrostatic.h>
 #include <vars/Nparallelkpts.h>
 #include <vars/Nkpoints.h>
 #include <vars/IPrint.h>
@@ -426,6 +427,7 @@ int main(int argc, char **argv, char **envp)
   ui->addVar(new WfExtrap(s));
   ui->addVar(new Xc(s));
   ui->addVar(new AbsorbingPotentialVar(s));
+  ui->addVar(new IsolatedElectrostatic(s));
   ui->addVar(new Nparallelkpts(s));
   ui->addVar(new Nkpoints(s));
   ui->addVar(new IPrint(s));

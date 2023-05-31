@@ -43,6 +43,7 @@ noinst_HEADERS =                            \
 	HugDeltaTemp.h                      \
 	HugFreq.h                           \
 	HugoniostatVar.h                    \
+        IsolatedElectrostatic.h             \
 	IPrint.h                            \
         LaserFreq.h                         \
         LaserAmp.h                          \
