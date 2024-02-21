@@ -6,6 +6,4 @@ message: "If you use this software, please cite it as below."
 title: "QB@CH, Qbox at Chapel Hill"
 type: software
 authors:
-- family-names: "Lisa"
-  given-names: "Mona"
 url: "https://github.com/chrsshpr/QBACH/edit"
