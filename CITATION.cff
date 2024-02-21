@@ -7,9 +7,9 @@ title: "QB@CH, Qbox at Chapel Hill"
 type: software
 url: "https://github.com/chrsshpr/QBACH"
 
-cff-version: 1.2.0
+#cff-version: 1.2.0
 #institution: University of North Carolina at Chapel Hill
-abstract: "Qb@ll (Qbox @ Livermore Lab) code had been maintained at
+#abstract: "Qb@ll (Qbox @ Livermore Lab) code had been maintained at
 LLNL as a branch of the original/official QBox code,
 developed by Francois Gygi. Information on the Qbox code
 is found here
