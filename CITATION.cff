@@ -8,4 +8,15 @@ type: software
 authors:
 - family-names: " "
   given-names: " "
-url: "https://github.com/chrsshpr/QBACH/edit"
+url: "https://github.com/chrsshpr/QBACH"
+abstract: >-
+  Qb@ll (Qbox @ Livermore Lab) code had been maintained at
+  LLNL as a branch of the original/official QBox code,
+  developed by Francois Gygi. Information on the Qbox code
+  is found here
+  http://qboxcode.org/doc/html/usage/intro.html#. Qb@ll
+  development was discontinued at LLNL in order to shift the
+  focus to the new GPU-enabled INQ code. Further development
+  of the Qb@ll branch, particularly for the RT-TDDFT
+  implementation, is currently continued at UNC Chapel Hill
+  under a new branch name, Qb@ch (Qbox @ Chapel Hill)
