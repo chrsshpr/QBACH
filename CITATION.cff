@@ -1,13 +1,15 @@
 # This CITATION.cff file was generated with cffinit.
 # Visit https://bit.ly/cffinit to generate yours today!
 
-cff-version: 1.2.0
-title: QB@CH, Qbox at Chapel Hill
-type: software
+message: "If you use this software, please cite it as below."
 authors:
-institution: University of North Carolina at Chapel Hill
-repository-code: 'https://github.com/chrsshpr/QBACH'
-abstract: Qb@ll (Qbox @ Livermore Lab) code had been maintained at
+title: "QB@CH, Qbox at Chapel Hill"
+type: software
+url: "https://github.com/chrsshpr/QBACH"
+
+cff-version: 1.2.0
+#institution: University of North Carolina at Chapel Hill
+abstract: "Qb@ll (Qbox @ Livermore Lab) code had been maintained at
 LLNL as a branch of the original/official QBox code,
 developed by Francois Gygi. Information on the Qbox code
 is found here
@@ -16,4 +18,4 @@ development was discontinued at LLNL in order to shift the
 focus to the new GPU-enabled INQ code. Further development
 of the Qb@ll branch, particularly for the RT-TDDFT
 implementation, is currently continued at UNC Chapel Hill
-under a new branch name, Qb@ch (Qbox @ Chapel Hill)
+under a new branch name, Qb@ch (Qbox @ Chapel Hill)"
