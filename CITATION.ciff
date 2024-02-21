@@ -8,6 +8,7 @@ message: >-
   metadata from this file.
 type: software
 authors:
+institution: University of North Carolina at Chapel Hill
 repository-code: 'https://github.com/chrsshpr/QBACH'
 abstract: >-
   Qb@ll (Qbox @ Livermore Lab) code had been maintained at
