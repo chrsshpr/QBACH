@@ -170,6 +170,7 @@ using namespace std;
 #include <vars/VectorPotentialVar.h>
 #include <vars/LaserFreq.h>
 #include <vars/LaserAmp.h>
+#include <vars/LaserEnvelope.h>
 #include <vars/VdW.h>
 
 #ifdef USE_JAGGEMM
@@ -440,6 +441,7 @@ void qbLink::init(void) {
   ui->addVar(new VectorPotentialVar(s));
   ui->addVar(new LaserAmp(s));
   ui->addVar(new LaserFreq(s));
+  ui->addVar(new LaserEnvelope(s));
   ui->addVar(new VdW(s));
 
 #ifdef USE_JAGGEMM
