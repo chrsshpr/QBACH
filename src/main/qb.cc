@@ -167,6 +167,7 @@ using namespace std;
 #include <vars/Memory.h>
 #include <vars/MDIter.h>
 #include <vars/MatrixLoc.h>
+#include <vars/NaturalOrbital.h>
 #include <vars/Pblock.h>
 #include <vars/SaveFreq.h>
 #include <vars/SaveDenFreq.h>
@@ -174,6 +175,7 @@ using namespace std;
 #include <vars/SaveProjFreq.h>
 #include <vars/SaveHoleFreq.h>
 #include <vars/SaveElecFreq.h>
+#include <vars/SaveNTOFreq.h>
 #include <vars/Save2ndProjFreq.h>
 #include <vars/EfieldAmp.h>
 #include <vars/GaussField.h>
@@ -460,6 +462,8 @@ int main(int argc, char **argv, char **envp)
   ui->addVar(new SaveProjFreq(s));
   ui->addVar(new SaveHoleFreq(s));
   ui->addVar(new SaveElecFreq(s));
+  ui->addVar(new SaveNTOFreq(s));
+  ui->addVar(new NaturalOrbital(s));
   ui->addVar(new Save2ndProjFreq(s));
   ui->addVar(new EfieldAmp(s));
   ui->addVar(new GaussField(s));

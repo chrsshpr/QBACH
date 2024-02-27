@@ -104,6 +104,7 @@ noinst_HEADERS =                            \
 	TDEULERWavefunctionStepper.h        \
 	TDMLWFTransform.h		    \
 	TDExchangeOperator.h                \
+	TDNaturalOrbital.h		    \
         Timer.h                             \
 	TorsionConstraint.h                 \
 	Unit.h                              \
@@ -173,6 +174,7 @@ libqbLink_a_SOURCES =                        \
 	jade.cc                              \
 	TDMLWFTransform.cc                   \
         TDExchangeOperator.cc		     \
+	TDNaturalOrbital.cc		     \
 	jade_complex.cc			     \
 	ConstraintSet.cc                     \
 	Constraint.cc                        \
