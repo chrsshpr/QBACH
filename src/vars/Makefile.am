@@ -25,6 +25,7 @@ noinst_HEADERS =                            \
 	Ecutprec.h                          \
 	Ecuts.h                             \
 	Efield.h			    \
+	EfieldAmp.h			    \
 	Emass.h                             \
 	EnthalpyPressure.h                  \
 	EnthalpyThreshold.h                 \
@@ -39,6 +40,7 @@ noinst_HEADERS =                            \
 	FcpThWidth.h                        \
 	FermiTemp.h                         \
 	Force_Complex_WF.h                  \
+	GaussField.h			    \
 	HubbardU.h                          \
 	HugDeltaTemp.h                      \
 	HugFreq.h                           \
@@ -70,6 +72,7 @@ noinst_HEADERS =                            \
 	Save2ndProjFreq.h 		    \
 	SaveFreq.h                          \
 	SaveWfFreq.h                        \
+	SineField.h 			    \
 	Smearing.h                          \
 	SmearingWidth.h                     \
 	Spin.h                              \

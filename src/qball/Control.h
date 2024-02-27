@@ -161,8 +161,11 @@ struct Control
   int holeindex,elecindex,NOindex;
   string saveholefilebase,saveelecfilebase,saveNOfilebase;
 
-  D3vector sine_field;
-  bool  compute_sine_field ;
+  D3vector efield_amp;
+  double sine_field;
+  bool compute_sine_field;
+  bool compute_gaussian_field;
+  double gauss_field[3];
   int blHF[3];
   double btHF;
   double MLWFDist;
