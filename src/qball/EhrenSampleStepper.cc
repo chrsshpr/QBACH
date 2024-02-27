@@ -284,15 +284,35 @@ void EhrenSampleStepper::step(int niter)
   for ( int iter = 0; iter < niter; iter++ )
   {
 
-    if (s_.ctrl.compute_sine_field)
+    if (s_.ctrl.compute_sine_field) //CS  
     {
-         if(s_.ctrl.sine_field[0]==0)
-                s_.ctrl.e_field[0] = s_.ctrl.sine_field[1]*sin(2*M_PI*s_.ctrl.dt*iter/s_.ctrl.sine_field[2]);
-         if(s_.ctrl.sine_field[0]==1)
-                s_.ctrl.e_field[1] = s_.ctrl.sine_field[1]*sin(2*M_PI*s_.ctrl.dt*iter/s_.ctrl.sine_field[2]);
-         if(s_.ctrl.sine_field[0]==2)
-                s_.ctrl.e_field[2] = s_.ctrl.sine_field[1]*sin(2*M_PI*s_.ctrl.dt*iter/s_.ctrl.sine_field[2]);
+         if(s_.ctrl.efield_amp[0] > 0)
+         	s_.ctrl.e_field[0] = s_.ctrl.efield_amp[0]*sin(2*M_PI*s_.ctrl.dt*iter/s_.ctrl.sine_field); 
+         if(s_.ctrl.efield_amp[1] > 0)
+                s_.ctrl.e_field[1] = s_.ctrl.efield_amp[1]*sin(2*M_PI*s_.ctrl.dt*iter/s_.ctrl.sine_field);
+         if(s_.ctrl.efield_amp[2] > 0)
+                s_.ctrl.e_field[2] = s_.ctrl.efield_amp[2]*sin(2*M_PI*s_.ctrl.dt*iter/s_.ctrl.sine_field);
+         if ( s_.ctxt_.oncoutpe() )
+         	cout << setprecision(10) << "<sine_field> " << s_.ctrl.e_field[0] << " " << s_.ctrl.e_field[1] << " " << s_.ctrl.e_field[2] << " </Sine_field>" << endl;
     }
+
+    if (s_.ctrl.compute_gaussian_field) // field = amp * sin(w(t-t0)) * exp(-(t-t0)^2/(2*s^2))
+    {
+         if(s_.ctrl.efield_amp[0] > 0)
+                s_.ctrl.e_field[0] = s_.ctrl.efield_amp[0]*sin(s_.ctrl.gauss_field[2]*(s_.ctrl.dt*s_.ctrl.mditer-s_.ctrl.gauss_field[0]))*exp(-((s_.ctrl.dt*s_.ctrl.mditer-s_.ctrl.gauss_field[0])*(s_.ctrl.dt*s_.ctrl.mditer-s_.ctrl.gauss_field[0])/(2*(s_.ctrl.gauss_field[1]*s_.ctrl.gauss_field[1]))));
+
+         if(s_.ctrl.efield_amp[1] > 0)
+                s_.ctrl.e_field[1] = s_.ctrl.efield_amp[1]*sin(s_.ctrl.gauss_field[2]*(s_.ctrl.dt*s_.ctrl.mditer-s_.ctrl.gauss_field[0]))*exp(-((s_.ctrl.dt*s_.ctrl.mditer-s_.ctrl.gauss_field[0])*(s_.ctrl.dt*s_.ctrl.mditer-s_.ctrl.gauss_field[0])/(2*(s_.ctrl.gauss_field[1]*s_.ctrl.gauss_field[1]))));
+
+         if(s_.ctrl.efield_amp[2] > 0)
+                s_.ctrl.e_field[2] = s_.ctrl.efield_amp[2]*sin(s_.ctrl.gauss_field[2]*(s_.ctrl.dt*s_.ctrl.mditer-s_.ctrl.gauss_field[0]))*exp(-((s_.ctrl.dt*s_.ctrl.mditer-s_.ctrl.gauss_field[0])*(s_.ctrl.dt*s_.ctrl.mditer-s_.ctrl.gauss_field[0])/(2*(s_.ctrl.gauss_field[1]*s_.ctrl.gauss_field[1]))));
+
+         if ( s_.ctxt_.oncoutpe() )
+          	cout << setprecision(10) <<  " <gaussian_efield: " << s_.ctrl.e_field[0] << " " << s_.ctrl.e_field[1] << " " << s_.ctrl.e_field[2] << "</Gaussian_efield" << endl;
+         if  (s_.ctrl.gauss_field[1] == 0)
+            cout << "<ERROR> gauss_field and FWHM not set <ERROR>" << endl;
+    } //CS
+ 
     // check timing
     if (s_.ctrl.run_timer > 0.0 && niter > 1 && iter > 1 && testtimer) {
       double tnow = MPI_Wtime();

@@ -12,12 +12,14 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Efield.h
+// EfieldAmp.h
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef SINEFIELD_H
-#define SINEFIELD_H
+#include <config.h>
+
+#ifndef EFIELDAMP_H 
+#define EFIELDAMP_H
 
 #include<iostream>
 #include<iomanip>
@@ -27,33 +29,26 @@
 
 #include <qball/Sample.h>
 
-class Sinefield : public Var
+class EfieldAmp : public Var
 {
   Sample *s;
 
   public:
 
-  char const*name ( void ) const { return "sine_field"; };
+  char const*name ( void ) const { return "efield_amp"; };
 
-///input should be formatted direction amplitude period
+  //input is x y z vector, with value correspond to amplitude 
   int set ( int argc, char **argv )
   {
     if ( argc != 4 )
     {
-      //if ( ui->onpe0() )
-      cout << " e_field takes 3 input:direction amplitude period" << endl;
+      cout << " e_field amp takes 3 inputs: x y z" << endl;
       return 1;
     }
-    if (argv[1] == "X" or argv[1] == "x" )
-	     s->ctrl.sine_field[0] = 0;
-    if (argv[1] == "Y" or argv[1] == "y" )
-             s->ctrl.sine_field[0] = 1;
-    if (argv[2] == "Z" or argv[2] == "z" )
-             s->ctrl.sine_field[0] = 2;
+    
+    D3vector v(atof(argv[1]), atof(argv[2]), atof(argv[3]));
 
-    s->ctrl.sine_field[1] = atof(argv[2]);
-    s->ctrl.sine_field[2] = atof(argv[3]);
-    s->ctrl.compute_sine_field = true;
+    s->ctrl.efield_amp= v;
 
     return 0;
   }
@@ -64,18 +59,13 @@ class Sinefield : public Var
      st.setf(ios::left,ios::adjustfield);
      st << setw(10) << name() << " = ";
      st.setf(ios::right,ios::adjustfield);
-     st << "direction\t"  << s->ctrl.sine_field[0] << " "
-        << "ampltitude\t" << s->ctrl.sine_field[1] << " "
-        << "period\t"     << s->ctrl.sine_field[2] << " ";
+     st << "amp"  << s->ctrl.efield_amp;
      return st.str();
   }
 
-  Sinefield(Sample *sample) : s(sample)
-  {
-    s->ctrl.compute_sine_field = false;	  
-    s->ctrl.sine_field[0] = 0.0;
-    s->ctrl.sine_field[1] = 0.0;
-    s->ctrl.sine_field[2] = 0.0;
-  }
+  EfieldAmp(Sample *sample) : s(sample)
+  { 
+    s->ctrl.efield_amp= D3vector(0.0, 0.0, 0.0); }
+  
 };
 #endif
