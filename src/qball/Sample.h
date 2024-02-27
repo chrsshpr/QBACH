@@ -59,6 +59,7 @@ class Sample {
   Wavefunction* hamil_wf;
   // AS: keep a copy of the wave function during Born-Oppenheimer MD when non-adiabatic overlaps are to be calculated
   Wavefunction* previous_wf;
+  Wavefunction* proj_wf_virtual;
   Wavefunction* proj_wf;
   Wavefunction* proj2nd_wf;
   Wavefunction* wfv; // wavefunction velocity
