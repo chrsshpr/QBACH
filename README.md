@@ -13,40 +13,6 @@ A. Schleife, E. W. Draeger, V. M. Anisimov, A. A. Correa, and Y. Kanai, Quantum 
 
 E. W. Draeger, X. Andrade, J. A. Gunnels, A. Bhatele, A. Schleife, and A. A. Correa, Massively parallel first-principles simulation of electron dynamics in materials, J. Parallel Distrib. Comput. 106, 205 (2017).
 
-## Installing on dogwood
-   ```
-autoreconf -i
-
-LIBHOME=/nas/longleaf/apps/intel/19.4/intel/compilers_and_libraries_2019.4.227/linux/mkl/lib/intel64
-MKLDIR=/nas/longleaf/apps/intel/19.4/intel/compilers_and_libraries_2019.4.227/linux/mkl
-MPIDIR=/usr/mpi/intel/mvapich2-2.3a/
-BLASDIR=$LIBHOME
-LAPACKDIR=$LIBHOME
-SCALAPACK_DIR=$LIBHOME
-SCALAPACKLIB=$SCALAPACK_DIR/libmkl_scalapack_lp64.a
-LAPACKLIB=$LAPACKDIR/libmkl_lapack95_lp64.a
-
-export CXX=mpicc
-export CC=mpicxx
-export LIBS_BLAS="-L$LIBHOME/libmkl_blas95_lp64.a "
-export MKLROOT="/nas/longleaf/apps/intel/19.4/intel/compilers_and_libraries_2019.4.227/linux/mkl"
-
-DFLAGS="-DUSE_MPI -DPRINTALL -DUSE_CSTDIO_LFS -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"
-
-INCLUDE=" -I$MKLDIR/include -I$MPIDIR/include"
-
-LIBPATH=" -L$LAPACKDIR -L$BLASDIR -L$MKLDIR/lib/intel64 -L$MPIDIR/lib64 "
-
-export PLIBS=" -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64"
-export LIBS="-lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lirc -lifcore -lsvml -lpthread $PLIBS $LAPACKLIB -lxerces-c"
-export LDFLAGS="$LIBPATH $LIBS -lc -lnss_files -lnss_dns -lresolv"
-
-export CFLAGS="-qhot=novector -qsimd=auto -g -O3 -DUSE_MPI -DSCALAPACK $INCLUDE $DFLAGS"
-export  CXXFLAGS=" -g -O3 -DUSE_MPI -DSCALAPACK $INCLUDE $DFLAGS"
-
-./configure  --with-lapack=/nas/longleaf/apps/intel/19.4/intel/compilers_and_libraries_2019.4.227/linux/mkl/lib/intel64/libmkl_lapack95_lp64.a  --prefix=$PATH_TO_CODE 
-
-   ```
 ## Installing
 
 To compile Qbox:
