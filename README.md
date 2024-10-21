@@ -13,6 +13,10 @@ A. Schleife, E. W. Draeger, V. M. Anisimov, A. A. Correa, and Y. Kanai, Quantum 
 
 E. W. Draeger, X. Andrade, J. A. Gunnels, A. Bhatele, A. Schleife, and A. A. Correa, Massively parallel first-principles simulation of electron dynamics in materials, J. Parallel Distrib. Comput. 106, 205 (2017).
 
+D.Yost, Y. Yao, Y. Kanai, Propagation of Maximally Localized Wannier Functions in Real-Time TDDFT, J. Chem. Phys., 150, 194113 (2019). 
+
+C. Shepard, R. Zhou, T. E. Carney, J. Bost,  Y. Yao, Y. Kanai, Efficient Exact Exchange using Wannier Functions and Other Related Developments in Planewave-Pseudopotential Implementation of RT-TDDFT, J. Chem. Phys. 161, 024111  (2024).
+
 ## Installing
 
 To compile Qbox:
