@@ -55,6 +55,7 @@ class TDMLWFTransform
   BasisMapping bm_;
   //DoubleMatrix* aprox; //proxy double matrix for a's
   std::vector<ComplexMatrix*> a_;  //DCY cosine and sine matrices
+  std::vector<ComplexMatrix*> b_; //CS cos(b*x) and sin(b*x) matrices
   ComplexMatrix* u_;               //DCY orthogonal transformation
   ComplexMatrix* tmpmat_; 	//CS ordered orthogonal tranform
   std::vector<std::vector<std::complex<double> > > adiag_; //DCY, diagonal elements

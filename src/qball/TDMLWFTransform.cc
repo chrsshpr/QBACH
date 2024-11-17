@@ -51,6 +51,7 @@ TDMLWFTransform::TDMLWFTransform(const SlaterDet& sd) : sd_(sd),
 cell_(sd.basis().cell()), ctxt_(sd.context()),  bm_(BasisMapping(sd.basis())) 
 {
   a_.resize(6);
+  b_.reszie(6);
   adiag_.resize(6);
   const int n = sd.c().n();
   const int nprox = n*2;
@@ -59,6 +60,7 @@ cell_(sd.basis().cell()), ctxt_(sd.context()),  bm_(BasisMapping(sd.basis()))
   for ( int k = 0; k < 6; k++ )
   {
     a_[k] = new ComplexMatrix(ctxt_,n,n,nb,nb);
+    b_[k] = new ComplexMatrix(ctxt_,n,n,nb,nb);
     adiag_[k].resize(n);
   }
   u_ = new ComplexMatrix(ctxt_,n,n,nb,nb);
@@ -78,6 +80,7 @@ TDMLWFTransform::~TDMLWFTransform(void)
   for ( int k = 0; k < 6; k++ )
    {
     delete a_[k];
+    delete b_[k];
    } 
   delete u_;
   delete tmpmat_;
@@ -115,6 +118,7 @@ void TDMLWFTransform::update(void)
   for ( int i = 0; i < 6; i++ )
   {
     a_[i]->resize(c.n(), c.n(), c.nb(), c.nb());
+    b_[i]->resize(c.n(), c.n(), c.nb(), c.nb());
     adiag_[i].resize(c.n());
   }
   u_->resize(c.n(), c.n(), c.nb(), c.nb());
@@ -197,7 +201,7 @@ void TDMLWFTransform::update(void)
     bm_.zvec_to_vector(&zvec_cos[0],&fcy[0]);
     bm_.zvec_to_vector(&zvec_sin[0],&fsy[0]);
   }
-
+  //CS here 
   // dot products a_[0] = <cos x>, a_[1] = <sin x>
   a_[0]->gemm('c','n',1.0,c,ccosx,0.0);
   a_[0]->zger(-1.0,c,0,ccosx,0);
