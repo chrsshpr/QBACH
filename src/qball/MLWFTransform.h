@@ -49,6 +49,7 @@ class MLWFTransform
 
   BasisMapping bm_;
   std::vector<DoubleMatrix*> a_;  // cosine and sine matrices
+  std::vector<DoubleMatrix*> b_; // cos(b*x) and sin(b*x) matrices
   DoubleMatrix* u_;               // orthogonal transformation
   std::vector<std::vector<double> > adiag_; // diagonal elements
 
