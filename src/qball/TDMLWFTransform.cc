@@ -51,7 +51,7 @@ TDMLWFTransform::TDMLWFTransform(const SlaterDet& sd) : sd_(sd),
 cell_(sd.basis().cell()), ctxt_(sd.context()),  bm_(BasisMapping(sd.basis())) 
 {
   a_.resize(6);
-  b_.reszie(6);
+  b_.resize(6);
   adiag_.resize(6);
   const int n = sd.c().n();
   const int nprox = n*2;
@@ -201,26 +201,64 @@ void TDMLWFTransform::update(void)
     bm_.zvec_to_vector(&zvec_cos[0],&fcy[0]);
     bm_.zvec_to_vector(&zvec_sin[0],&fsy[0]);
   }
-  //CS here 
-  // dot products a_[0] = <cos x>, a_[1] = <sin x>
-  a_[0]->gemm('c','n',1.0,c,ccosx,0.0);
-  a_[0]->zger(-1.0,c,0,ccosx,0);
-  a_[1]->gemm('c','n',1.0,c,csinx,0.0);
-  a_[1]->zger(-1.0,c,0,csinx,0);
 
-  // dot products a_[2] = <cos y>, a_[3] = <sin y>
-  a_[2]->gemm('c','n',1.0,c,ccosy,0.0);
-  a_[2]->zger(-1.0,c,0,ccosy,0);
-  a_[3]->gemm('c','n',1.0,c,csiny,0.0);
-  a_[3]->zger(-1.0,c,0,csiny,0);
+  // dot products b_[0] = <cos x>, b_[1] = <sin x>
+  b_[0]->gemm('c','n',1.0,c,ccosx,0.0);
+  b_[0]->zger(-1.0,c,0,ccosx,0);
+  b_[1]->gemm('c','n',1.0,c,csinx,0.0);
+  b_[1]->zger(-1.0,c,0,csinx,0);
 
-  // dot products a_[4] = <cos z>, a_[5] = <sin z>
-  a_[4]->gemm('c','n',1.0,c,ccosz,0.0);
-  a_[4]->zger(-1.0,c,0,ccosz,0);
-  a_[5]->gemm('c','n',1.0,c,csinz,0.0);
-  a_[5]->zger(-1.0,c,0,csinz,0);
+  // dot products b_[2] = <cos y>, b_[3] = <sin y>
+  b_[2]->gemm('c','n',1.0,c,ccosy,0.0);
+  b_[2]->zger(-1.0,c,0,ccosy,0);
+  b_[3]->gemm('c','n',1.0,c,csiny,0.0);
+  b_[3]->zger(-1.0,c,0,csiny,0);
+
+  // dot products b_[4] = <cos z>, b_[5] = <sin z>
+  b_[4]->gemm('c','n',1.0,c,ccosz,0.0);
+  b_[4]->zger(-1.0,c,0,ccosz,0);
+  b_[5]->gemm('c','n',1.0,c,csinz,0.0);
+  b_[5]->zger(-1.0,c,0,csinz,0);
+
+  // a_ = A * b_
+  const double *amat = cell_.amat();
+  // a_[0]
+  a_[0]->clear();
+  a_[0]->axpy(amat[0], *b_[0]);
+  a_[0]->axpy(amat[3], *b_[2]);
+  a_[0]->axpy(amat[6], *b_[4]);
+
+  // a_[1]
+  a_[1]->clear();
+  a_[1]->axpy(amat[0], *b_[1]);
+  a_[1]->axpy(amat[3], *b_[3]);
+  a_[1]->axpy(amat[6], *b_[5]);
+
+  // a_[2]
+  a_[2]->clear();
+  a_[2]->axpy(amat[1], *b_[0]);
+  a_[2]->axpy(amat[4], *b_[2]);
+  a_[2]->axpy(amat[7], *b_[4]);
+
+  // a_[3]
+  a_[3]->clear();
+  a_[3]->axpy(amat[1], *b_[1]);
+  a_[3]->axpy(amat[4], *b_[3]);
+  a_[3]->axpy(amat[7], *b_[5]);
+
+  // a_[4]
+  a_[4]->clear();
+  a_[4]->axpy(amat[2], *b_[0]);
+  a_[4]->axpy(amat[5], *b_[2]);
+  a_[4]->axpy(amat[8], *b_[4]);
+
+  // a_[5]
+  a_[5]->clear();
+  a_[5]->axpy(amat[2], *b_[1]);
+  a_[5]->axpy(amat[5], *b_[3]);
+  a_[5]->axpy(amat[8], *b_[5]);
+
 }
-
 ////////////////////////////////////////////////////////////////////////////////
 void TDMLWFTransform::compute_transform(void)
 {
@@ -264,25 +302,37 @@ void TDMLWFTransform::compute_sincos(const int n, const complex<double>* f,
 D3vector TDMLWFTransform::center(int i)
 {
   assert(i>=0 && i<sd_.nst()); 
-  const double cx = real(adiag_[0][i]); 
-  const double sx = real(adiag_[1][i]);
-  const double cy = real(adiag_[2][i]);
-  const double sy = real(adiag_[3][i]);
-  const double cz = real(adiag_[4][i]);
-  const double sz = real(adiag_[5][i]);
-  // Ratios for inputs into atan functions below
-  //const complex<double> sxcx = sx / cx;
-  //const complex<double> sycy = sy / cy;
-  //const complex<double> szcz = sz / cz;
-  // Next lines: M_1_PI = 1.0/pi // DCY explicit arctan(sx,cx) to work for complex numbers
-  const double itwopi = 1.0 / ( 2.0 * M_PI );
-  const double t0 = (itwopi * atan2(sx,cx));
-  const double t1 = (itwopi * atan2(sy,cy));
-  const double t2 = (itwopi * atan2(sz,cz));
-  const double x = (t0*cell_.a(0).x + t1*cell_.a(1).x + t2*cell_.a(2).x);
-  const double y = (t0*cell_.a(0).y + t1*cell_.a(1).y + t2*cell_.a(2).y);
-  const double z = (t0*cell_.a(0).z + t1*cell_.a(1).z + t2*cell_.a(2).z);
+  // c,s = B^T * adiag
+  const double *bmat = cell_.bmat();
+  const double c0 = bmat[0] * real(adiag_[0][i]) +
+                    bmat[1] * real(adiag_[2][i]) +
+                    bmat[2] * real(adiag_[4][i]);
+  const double s0 = bmat[0] * real(adiag_[1][i]) +
+                    bmat[1] * real(adiag_[3][i]) +
+                    bmat[2] * real(adiag_[5][i]);
 
+  const double c1 = bmat[3] * real(adiag_[0][i]) +
+                    bmat[4] * real(adiag_[2][i]) +
+                    bmat[5] * real(adiag_[4][i]);
+  const double s1 = bmat[3] * real(adiag_[1][i]) +
+                    bmat[4] * real(adiag_[3][i]) +
+                    bmat[5] * real(adiag_[5][i]);
+
+  const double c2 = bmat[6] * real(adiag_[0][i]) +
+                    bmat[7] * real(adiag_[2][i]) +
+                    bmat[8] * real(adiag_[4][i]);
+  const double s2 = bmat[6] * real(adiag_[1][i]) +
+                    bmat[7] * real(adiag_[3][i]) +
+                    bmat[8] * real(adiag_[5][i]);
+
+  const double itwopi = 1.0 / ( 2.0 * M_PI );
+  const double t0 = itwopi * atan2(s0,c0);
+  const double t1 = itwopi * atan2(s1,c1);
+  const double t2 = itwopi * atan2(s2,c2);
+  const double *amat = cell_.amat();
+  const double x = t0 * amat[0] + t1 * amat[3] + t2 * amat[6];
+  const double y = t0 * amat[1] + t1 * amat[4] + t2 * amat[7];
+  const double z = t0 * amat[2] + t1 * amat[5] + t2 * amat[8];
   return D3vector(x,y,z);
 }
 
@@ -367,11 +417,19 @@ double TDMLWFTransform::pair_fraction(double epsilon)
 ////////////////////////////////////////////////////////////////////////////////
 double TDMLWFTransform::spread2(int i, int j)
 {
+  // squared spread of state i in the direction of
+  // the reciprocal lattice vector b_j
   assert(i>=0 && i<sd_.nst());
   assert(j>=0 && j<3);
-  const complex<double> c(adiag_[2*j][i]); //DCY
-  const complex<double> s(adiag_[2*j+1][i]); //DCY
-  // Next line: M_1_PI = 1.0/pi
+  const double itwopi = 1.0 / ( 2.0 * M_PI );
+  const double *bmat = cell_.bmat();
+  // c,s = B^T * adiag / ( 2 * pi )
+  const complex<double> c = itwopi * ( bmat[3*j+0] * adiag_[0][i] +
+                              bmat[3*j+1] * adiag_[2][i] +
+                              bmat[3*j+2] * adiag_[4][i] );
+  const complex<double> s = itwopi * ( bmat[3*j+0] * adiag_[1][i] +
+                              bmat[3*j+1] * adiag_[3][i] +
+                              bmat[3*j+2] * adiag_[5][i] );
   const double fac = 1.0 / length(cell_.b(j)); //DCY
   //return fac*fac * ( 1.0 - norm(conj(c) - norm(conj(s)*s) ); //DCY real component or should it be square modulus?
   return fac*fac * ( 1.0 - norm(c) - norm(s) );
