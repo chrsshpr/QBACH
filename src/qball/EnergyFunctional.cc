@@ -2112,7 +2112,8 @@ void EnergyFunctional::atoms_moved(void)
       rhopst[ig] += sg * rhops[is][ig];
       vion_local_g[ig] += sg * vps[is][ig];
       dvion_local_g[ig] += sg * dvps[is][ig];
-      rhoiong[ig] += sg * atoms.species_list[is]->zval() / omega; // YY for MT method
+      std::complex<double> z_val = atoms.species_list[is]->zval(); //CS fix type mismatch
+      rhoiong[ig] += sg * z_val / omega; // YY for MT method
     }
   }
 

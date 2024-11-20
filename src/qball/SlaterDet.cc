@@ -3026,7 +3026,7 @@ void SlaterDet::print(ostream& os, string encoding) {
         int outlen = xcdr.nchars(nbytes);
         char* b = new char[outlen];
         assert(b!=0);
-        xcdr.encode(nbytes,(byte*) &wftmpr[0],b);
+        xcdr.encode(nbytes,(my_byte*) &wftmpr[0],b);
         // Note: optional x0,y0,z0 attributes not used, default is zero
         os << "<grid_function type=\"double\""
            << " nx=\"" << ft.np0()
@@ -3286,7 +3286,7 @@ void SlaterDet::write(SharedFilePtr& sfp, string encoding, double weight, int is
           int outlen = xcdr.nchars(nbytes);
           char* b = new char[outlen];
           assert(b!=0);
-          xcdr.encode(nbytes,(byte*) &tmpr[0],b);
+          xcdr.encode(nbytes,(my_byte*) &tmpr[0],b);
           // Note: optional x0,y0,z0 attributes not used, default is zero
           if ( ctxt_.myrow() == 0 )
             {
