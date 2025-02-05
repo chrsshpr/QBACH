@@ -87,15 +87,6 @@ class EnergyFunctional
   vector<complex<double> > tmp_r, vion_local_g, dvion_local_g, vlocal_g,
       rhopst, rhogt, rhoelg, vtemp;
   vector<double> ftmp;
-
-  // YY for MT
-  vector<complex<double> > aux, aux_g;
-  vector<double> wg_corr;
-  vector<complex<double> > rhoiong;
-  vector<complex<double> > vh_corr, vloc_corr;
-  double eh_corr;
-  double eewald_corr; 
- // YY
   
   vector<vector<double> > tau0, taum, fion_esr;
   vector<double> zv_, rcps_;
@@ -116,10 +107,8 @@ class EnergyFunctional
     sigma_enl, sigma_esr, sigma;
 
   // YY: for isolated MT 
-  double smooth_coulomb_r(double r);
-  double smooth_coulomb_g(double q2);
-  double mt_alpha, mt_beta;
-  void mt_init_wg_corr(void);
+  double smooth_coulomb_r(double r, double alpha);
+  double smooth_coulomb_g(double q2, double alpha, double beta);
   // YY 
 
   public:
