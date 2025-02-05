@@ -139,7 +139,6 @@ struct Control
   string esm_bc;
   double esm_w;
 
-  string isolated_electrostatic; // YY isolated electrostatic method using MT scheme 
   bool has_absorbing_potential; // YY: whether absorbing potential
   string absorbing_potential; // YY: absorbing potential informations
 
