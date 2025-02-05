@@ -149,11 +149,13 @@ using namespace std;
 #include <vars/WFPhaseRealVar.h>
 #include <vars/Xc.h>
 #include <vars/AbsorbingPotentialVar.h>
+#include <vars/IsolatedElectrostatic.h>
 #include <vars/Nparallelkpts.h>
 #include <vars/Nkpoints.h>
 #include <vars/IPrint.h>
 #include <vars/LaserAmp.h>
 #include <vars/LaserFreq.h>
+#include <vars/LaserEnvelope.h>
 #include <vars/CellStepFreq.h>
 #include <vars/EnthalpyPressure.h>
 #include <vars/EnthalpyThreshold.h>
@@ -165,6 +167,7 @@ using namespace std;
 #include <vars/Memory.h>
 #include <vars/MDIter.h>
 #include <vars/MatrixLoc.h>
+#include <vars/NaturalOrbital.h>
 #include <vars/Pblock.h>
 #include <vars/SaveFreq.h>
 #include <vars/SaveDenFreq.h>
@@ -172,8 +175,11 @@ using namespace std;
 #include <vars/SaveProjFreq.h>
 #include <vars/SaveHoleFreq.h>
 #include <vars/SaveElecFreq.h>
+#include <vars/SaveNTOFreq.h>
 #include <vars/Save2ndProjFreq.h>
-#include <vars/Sinefield.h>
+#include <vars/EfieldAmp.h>
+#include <vars/GaussField.h>
+#include <vars/SineField.h>
 #include <vars/CalDipFreq.h>
 #include <vars/NetCharge.h>
 #include <vars/EsmBC.h>
@@ -426,11 +432,13 @@ int main(int argc, char **argv, char **envp)
   ui->addVar(new WfExtrap(s));
   ui->addVar(new Xc(s));
   ui->addVar(new AbsorbingPotentialVar(s));
+  ui->addVar(new IsolatedElectrostatic(s));
   ui->addVar(new Nparallelkpts(s));
   ui->addVar(new Nkpoints(s));
   ui->addVar(new IPrint(s));
   ui->addVar(new LaserAmp(s));
   ui->addVar(new LaserFreq(s));
+  ui->addVar(new LaserEnvelope(s));
   ui->addVar(new CellStepFreq(s));
   ui->addVar(new EnthalpyPressure(s));
   ui->addVar(new EnthalpyThreshold(s));
@@ -454,8 +462,12 @@ int main(int argc, char **argv, char **envp)
   ui->addVar(new SaveProjFreq(s));
   ui->addVar(new SaveHoleFreq(s));
   ui->addVar(new SaveElecFreq(s));
+  ui->addVar(new SaveNTOFreq(s));
+  ui->addVar(new NaturalOrbital(s));
   ui->addVar(new Save2ndProjFreq(s));
-  ui->addVar(new Sinefield(s));
+  ui->addVar(new EfieldAmp(s));
+  ui->addVar(new GaussField(s));
+  ui->addVar(new SineField(s));
   ui->addVar(new CalDipFreq(s));
   ui->addVar(new NetCharge(s));
   ui->addVar(new EsmBC(s));

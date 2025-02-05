@@ -47,6 +47,9 @@ struct Control
     
   string smearing;        // method to use for smearing (fermi or gaussian)
   double smearing_width;  // smearing width (default = 0.0, i.e. no smearing)
+  string envelope_type;     // The shape of envelope for laser
+  double envelope_center;   // The center of the envelope in unit of time
+  double envelope_width;    // The width of the envelope in unit of time
   int smearing_ngauss;    // order of Methfessel-Paxton expansion
   double ecutprec;
 
@@ -136,6 +139,7 @@ struct Control
   string esm_bc;
   double esm_w;
 
+  string isolated_electrostatic; // YY isolated electrostatic method using MT scheme 
   bool has_absorbing_potential; // YY: whether absorbing potential
   string absorbing_potential; // YY: absorbing potential informations
 
@@ -153,12 +157,17 @@ struct Control
   D3vector initial_vector_potential;
   double laser_freq;
   D3vector laser_amp; 
-  int saveholefreq,saveelecfreq,saveNOfreq;
-  int holeindex,elecindex,NOindex;
-  string saveholefilebase,saveelecfilebase,saveNOfilebase;
+  int saveholefreq,saveelecfreq,saventofreq;
+  int holeindex,elecindex,ntoindex,holeindex1,holeindex2,elecindex1,elecindex2;
+  string saveholefilebase,saveelecfilebase,saventofilebase;
+  bool natural_orbital,sorted_hole,projelec,projhole,eff_elec;
+  bool saveholestate;  
 
-  D3vector sine_field;
-  bool  compute_sine_field ;
+  D3vector efield_amp;
+  double sine_field;
+  bool compute_sine_field;
+  bool compute_gaussian_field;
+  double gauss_field[3];
   int blHF[3];
   double btHF;
   double MLWFDist;

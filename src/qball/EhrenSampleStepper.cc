@@ -46,6 +46,7 @@
 #include "SDCellStepper.h"
 #include "MLWFTransform.h"
 #include "TDMLWFTransform.h"
+#include "TDNaturalOrbital.h"
 #include "SimpleConvergenceDetector.h"
 #include "Hugoniostat.h"
 #include "PrintMem.h"
@@ -281,18 +282,44 @@ void EhrenSampleStepper::step(int niter)
   QB_Pstart(14,scfloop);
 #endif
   tmap["total_niter"].start();
+  bool compute_natural_orbital = s_.ctrl.natural_orbital;
+  TDNaturalOrbital * tdnto;
+  if (compute_natural_orbital)
+  { 
+      tdnto=new TDNaturalOrbital(s_);
+  }
   for ( int iter = 0; iter < niter; iter++ )
   {
 
-    if (s_.ctrl.compute_sine_field)
+    if (s_.ctrl.compute_sine_field) //CS  
     {
-         if(s_.ctrl.sine_field[0]==0)
-                s_.ctrl.e_field[0] = s_.ctrl.sine_field[1]*sin(2*M_PI*s_.ctrl.dt*iter/s_.ctrl.sine_field[2]);
-         if(s_.ctrl.sine_field[0]==1)
-                s_.ctrl.e_field[1] = s_.ctrl.sine_field[1]*sin(2*M_PI*s_.ctrl.dt*iter/s_.ctrl.sine_field[2]);
-         if(s_.ctrl.sine_field[0]==2)
-                s_.ctrl.e_field[2] = s_.ctrl.sine_field[1]*sin(2*M_PI*s_.ctrl.dt*iter/s_.ctrl.sine_field[2]);
+         if(s_.ctrl.efield_amp[0] > 0)
+         	s_.ctrl.e_field[0] = s_.ctrl.efield_amp[0]*sin(2*M_PI*s_.ctrl.dt*iter/s_.ctrl.sine_field); 
+         if(s_.ctrl.efield_amp[1] > 0)
+                s_.ctrl.e_field[1] = s_.ctrl.efield_amp[1]*sin(2*M_PI*s_.ctrl.dt*iter/s_.ctrl.sine_field);
+         if(s_.ctrl.efield_amp[2] > 0)
+                s_.ctrl.e_field[2] = s_.ctrl.efield_amp[2]*sin(2*M_PI*s_.ctrl.dt*iter/s_.ctrl.sine_field);
+         if ( s_.ctxt_.oncoutpe() )
+         	cout << setprecision(10) << "<sine_field> " << s_.ctrl.e_field[0] << " " << s_.ctrl.e_field[1] << " " << s_.ctrl.e_field[2] << " </Sine_field>" << endl;
     }
+
+    if (s_.ctrl.compute_gaussian_field) // field = amp * sin(w(t-t0)) * exp(-(t-t0)^2/(2*s^2))
+    {
+         if(s_.ctrl.efield_amp[0] > 0)
+                s_.ctrl.e_field[0] = s_.ctrl.efield_amp[0]*sin(s_.ctrl.gauss_field[2]*(s_.ctrl.dt*s_.ctrl.mditer-s_.ctrl.gauss_field[0]))*exp(-((s_.ctrl.dt*s_.ctrl.mditer-s_.ctrl.gauss_field[0])*(s_.ctrl.dt*s_.ctrl.mditer-s_.ctrl.gauss_field[0])/(2*(s_.ctrl.gauss_field[1]*s_.ctrl.gauss_field[1]))));
+
+         if(s_.ctrl.efield_amp[1] > 0)
+                s_.ctrl.e_field[1] = s_.ctrl.efield_amp[1]*sin(s_.ctrl.gauss_field[2]*(s_.ctrl.dt*s_.ctrl.mditer-s_.ctrl.gauss_field[0]))*exp(-((s_.ctrl.dt*s_.ctrl.mditer-s_.ctrl.gauss_field[0])*(s_.ctrl.dt*s_.ctrl.mditer-s_.ctrl.gauss_field[0])/(2*(s_.ctrl.gauss_field[1]*s_.ctrl.gauss_field[1]))));
+
+         if(s_.ctrl.efield_amp[2] > 0)
+                s_.ctrl.e_field[2] = s_.ctrl.efield_amp[2]*sin(s_.ctrl.gauss_field[2]*(s_.ctrl.dt*s_.ctrl.mditer-s_.ctrl.gauss_field[0]))*exp(-((s_.ctrl.dt*s_.ctrl.mditer-s_.ctrl.gauss_field[0])*(s_.ctrl.dt*s_.ctrl.mditer-s_.ctrl.gauss_field[0])/(2*(s_.ctrl.gauss_field[1]*s_.ctrl.gauss_field[1]))));
+
+         if ( s_.ctxt_.oncoutpe() )
+          	cout << setprecision(10) <<  " <gaussian_efield: " << s_.ctrl.e_field[0] << " " << s_.ctrl.e_field[1] << " " << s_.ctrl.e_field[2] << "</Gaussian_efield" << endl;
+         if  (s_.ctrl.gauss_field[1] == 0)
+            cout << "<ERROR> gauss_field and FWHM not set <ERROR>" << endl;
+    } //CS
+ 
     // check timing
     if (s_.ctrl.run_timer > 0.0 && niter > 1 && iter > 1 && testtimer) {
       double tnow = MPI_Wtime();
@@ -368,9 +395,9 @@ void EhrenSampleStepper::step(int niter)
         ef_.energy(s_.wf, false,dwf,compute_forces,fion,compute_stress,sigma_eks);
     tmap["efn"].stop();
 
-    //tmap["current"].start();
-    //currd_.update_current(ef_, dwf);
-    //tmap["current"].start();
+    tmap["current"].start();
+    currd_.update_current(ef_, dwf);
+    tmap["current"].start();
 
     if(ef_.vp && oncoutpe){
       std::cout << "<!-- vector_potential: " << ef_.vp->value() << " -->\n";
@@ -682,313 +709,7 @@ void EhrenSampleStepper::step(int niter)
        if ( oncoutpe ) cout << "</" << wf_dyn << " expectation set>" << endl;
        delete(to_diag_wf1);
     }
-if (s_.ctrl.saveelecfreq > 0)
-    {
-       for ( int ispin = 0; ispin < (wf).nspin(); ispin++ )
-       {
-           for ( int ikp = 0; ikp < (wf).nkp(); ikp++ )
-           {
-              if (s_.ctrl.mditer%s_.ctrl.saveelecfreq == 0 || s_.ctrl.mditer == 1)
-              {
-                ComplexMatrix ortho(wf.sd(ispin,ikp)->context(),(wf.sd(ispin,ikp)->c()).n(),(wf.sd(ispin,ikp)->c()).n(),(wf.sd(ispin,ikp)->c()).nb(),(wf.sd(ispin,ikp)->c()).nb());
-                ComplexMatrix elec(ortho);
-                tmap["gemm"].start();
-                ortho.gemm('c','n',1.0,(*s_.proj_wf).sd(ispin,ikp)->c(),(wf).sd(ispin,ikp)->c(),0.0);
-                elec.gemm('n','c',1.0,ortho,ortho,0.0);
-                tmap["gemm"].stop();
-                valarray<double> w((wf.sd(ispin,ikp)->c()).n());
-                ComplexMatrix z(ortho);
-                elec.heev('l', w,z);
-                ComplexMatrix c(wf.sd(ispin,ikp)->c());
-                tmap["gemm"].start();
-                c.gemm('n','n',1.0,(*s_.proj_wf).sd(ispin,ikp)->c(),z,0.0);
-                tmap["gemm"].stop();
-                z.clear();
-                if ( ctxt.oncoutpe())
-                {
-                   cout << " <NTO_set size=\"" << (wf.sd(ispin,ikp)->c()).n() << "\">" << endl;
-                   for ( int i = 0; i < (wf.sd(ispin,ikp)->c()).n(); i++ )
-                   {
-                        cout.setf(ios::fixed, ios::floatfield);
-                        cout.setf(ios::right, ios::adjustfield);
-                        cout << "   <NTO value=\"" << setprecision(6)
-                        << setw(12) << w[i]
-                        << endl;
-                   }
-                }
-                const Basis& basis = wf.sd(ispin,ikp)->basis();
-                int np0 = basis.np(0);
-                int np1 = basis.np(1);
-                int np2 = basis.np(2);
-                FourierTransform ft(basis,np0,np1,np2);
-                vector<complex<double> > wftmp(ft.np012loc());
-                vector<double> wftmpr(ft.np012());
-                vector<double> tmpr(ft.np012());
 
-                int n = s_.ctrl.elecindex;
-                int nloc = c.y(n);
-                ft.backward(c.cvalptr(c.mloc()*nloc),&wftmp[0]);
-                double *a = (double*) &wftmp[0];
-                for ( int i = 0; i < ft.np012loc(); i++ ) {
-                       wftmpr[i] = sqrt(a[2*i]*a[2*i] + a[2*i+1]*a[2*i+1]);
-                 }
-                 for ( int i = 0; i < c.context().nprow(); i++ )
-                 {
-                     bool iamsending = c.pc(n) == c.context().mycol() &&
-                          i == c.context().myrow();
-                     int size=-1;
-                     if ( c.context().oncoutpe() )
-                     {
-                            if ( iamsending )
-                            {}
-                            else
-                              c.context().irecv(1,1,&size,1,i,c.pc(n));
-                     }
-                     else
-                     {
-                            if ( iamsending )
-                            {
-                              size = ft.np012loc();
-                              c.context().isend(1,1,&size,1,0,0);
-                            }
-                     }
-
-                     if ( c.context().oncoutpe() )
-                      {
-                             if ( iamsending )
-                             {}
-                             else
-                             {
-                                 int istart = ft.np0() * ft.np1() * ft.np2_first(i);
-                                 c.context().drecv(size,1,&wftmpr[istart],1,i,c.pc(n));
-                             }
-                      }
-                      else
-                      {
-                             if ( iamsending )
-                             {
-                                 c.context().dsend(size,1,&wftmpr[0],1,0,0);
-                             }
-                      }
-                 }
-                 if ( c.context().oncoutpe() )
-                 {
-                      for ( int i = 0; i < ft.np012(); i++ )
-                      {
-                        tmpr[i] = wftmpr[i];
-                      }
-                 }
-                 if ( ctxt.oncoutpe())
-                 {
-
-                        ofstream os;
-                        ostringstream oss;
-                        oss.width(7);  oss.fill('0');  oss << s_.ctrl.mditer;
-                        string denfilename = s_.ctrl.saveelecfilebase  + "." + oss.str() + ".cube";
-                        os.open( denfilename);
-                        os <<endl;
-                        os << endl;
-                        int natoms = s_.atoms.size();
-                        D3vector a0 = s_.atoms.cell().a(0);
-                        D3vector a1 = s_.atoms.cell().a(1);
-                        D3vector a2 = s_.atoms.cell().a(2);
-                        os << natoms << " " << -0.5*(a0+a1+a2) << endl;
-                        os << np0 << " " << a0/np0 << endl;
-                        os << np1 << " " << a1/np1 << endl;
-                        os << np2 << " " << a2/np2 << endl;
-                        const int nsp = s_.atoms.nsp();
-                        for ( int is = 0; is < nsp; is++ )
-                        {
-                             Species* sp = s_.atoms.species_list[is];
-                             const int z = sp->atomic_number();
-                             const int na = s_.atoms.na(is);
-                             for ( int ia = 0; ia < na; ia++ )
-                             {
-                                      Atom *ap = s_.atoms.atom_list[is][ia];
-                                      os << setprecision(5);
-                                      os << z << " " << ((double) z) << " " << ap->position() << endl;
-
-                             }
-                        }
-                        os.setf(ios::scientific,ios::floatfield);
-                        os << setprecision(5);
-                        for ( int i = 0; i < np0; i++ )
-                        {
-                                const int ip = (i + np0/2 ) % np0;
-                                for ( int j = 0; j < np1; j++ )
-                                {
-                                    const int jp = (j + np1/2 ) % np1;
-                                    for ( int k = 0; k < np2; k++ )
-                                    {
-                                           const int kp = (k + np2/2 ) % np2;
-                                           os << setw(13) << tmpr[ip+np0*(jp+np1*kp)];
-                                           if ( ( k % 6 ) == 5 ) os<<endl;
-                                    }
-                                    if ( ( np2 % 6 ) != 0 ) os<<endl;
-                                }
-                        }
-                        os.close();
-                 }
-
-
-              }
-           }
-       }
-    }           
-if (s_.ctrl.saveholefreq > 0)
-    {
-       for ( int ispin = 0; ispin < (wf).nspin(); ispin++ )
-       {
-           for ( int ikp = 0; ikp < (wf).nkp(); ikp++ )
-           {
-              if (s_.ctrl.mditer%s_.ctrl.saveholefreq == 0 || s_.ctrl.mditer == 1)
-              {
-                ComplexMatrix ortho(wf.sd(ispin,ikp)->context(),(wf.sd(ispin,ikp)->c()).n(),(wf.sd(ispin,ikp)->c()).n(),(wf.sd(ispin,ikp)->c()).nb(),(wf.sd(ispin,ikp)->c()).nb());
-                ComplexMatrix hole(ortho);
-                tmap["gemm"].start();
-                ortho.gemm('c','n',1.0,(*s_.proj_wf).sd(ispin,ikp)->c(),(wf).sd(ispin,ikp)->c(),0.0);
-                hole.gemm('c','n',1.0,ortho,ortho,0.0);
-                tmap["gemm"].stop();
-                valarray<double> w((wf.sd(ispin,ikp)->c()).n());
-                ComplexMatrix z(ortho);
-                hole.heev('l', w,z);
-                ComplexMatrix c(wf.sd(ispin,ikp)->c());
-                tmap["gemm"].start();
-                c.gemm('n','n',1.0,(wf).sd(ispin,ikp)->c(),z,0.0);
-                tmap["gemm"].stop();
-                z.clear();
-                if ( ctxt.oncoutpe())
-                {
-                   cout << " <NTO_set size=\"" << (wf.sd(ispin,ikp)->c()).n() << "\">" << endl;
-                   for ( int i = 0; i < (wf.sd(ispin,ikp)->c()).n(); i++ )
-                   {
-                        cout.setf(ios::fixed, ios::floatfield);
-                        cout.setf(ios::right, ios::adjustfield);
-                        cout << "   <NTO value=\"" << setprecision(6)
-                        << setw(12) << w[i]
-                        << endl;
-                   }
-                }
-                //c.print(cout);
-                const Basis& basis = wf.sd(ispin,ikp)->basis();
-                int np0 = basis.np(0);
-                int np1 = basis.np(1);
-                int np2 = basis.np(2);
-                FourierTransform ft(basis,np0,np1,np2);
-                vector<complex<double> > wftmp(ft.np012loc());
-                vector<double> wftmpr(ft.np012());
-                vector<double> tmpr(ft.np012());
-
-                int n = s_.ctrl.holeindex;
-                int nloc = c.y(n);
-                ft.backward(c.cvalptr(c.mloc()*nloc),&wftmp[0]);
-                double *a = (double*) &wftmp[0];
-                for ( int i = 0; i < ft.np012loc(); i++ ) {
-                       wftmpr[i] = sqrt(a[2*i]*a[2*i] + a[2*i+1]*a[2*i+1]);
-                 }
-
-                 for ( int i = 0; i < c.context().nprow(); i++ )
-                 {
-                     bool iamsending = c.pc(n) == c.context().mycol() &&
-                          i == c.context().myrow();
-                     int size=-1;
-                     if ( c.context().oncoutpe() )
-                     {
-                            if ( iamsending )
-                            {}
-                            else
-                              c.context().irecv(1,1,&size,1,i,c.pc(n));
-                     }
-                     else
-                     {
-                            if ( iamsending )
-                            {
-                              size = ft.np012loc();
-                              c.context().isend(1,1,&size,1,0,0);
-                            }
-                     }
-                     if ( c.context().oncoutpe() )
-                      {
-                             if ( iamsending )
-                             {}
-                             else
-                             {
-                                 int istart = ft.np0() * ft.np1() * ft.np2_first(i);
-                                 c.context().drecv(size,1,&wftmpr[istart],1,i,c.pc(n));
-                             }
-                      }
-                      else
-                      {
-                             if ( iamsending )
-                             {
-                                 c.context().dsend(size,1,&wftmpr[0],1,0,0);
-                             }
-                      }
-                 }
-                 if ( c.context().oncoutpe() )
-                 {
-                      for ( int i = 0; i < ft.np012(); i++ )
-                      {
-                        tmpr[i] = wftmpr[i];
-                      }
-                 }
-                 if ( ctxt.oncoutpe())
-                 {
-
-                        ofstream os;
-                        ostringstream oss;
-                        oss.width(7);  oss.fill('0');  oss << s_.ctrl.mditer;
-                        string denfilename = s_.ctrl.saveholefilebase  + "." + oss.str() + ".cube";
-                        os.open( denfilename);
-                        os <<endl;
-                        os << endl;
-                        int natoms = s_.atoms.size();
-                        D3vector a0 = s_.atoms.cell().a(0);
-                        D3vector a1 = s_.atoms.cell().a(1);
-                        D3vector a2 = s_.atoms.cell().a(2);
-                        os << natoms << " " << -0.5*(a0+a1+a2) << endl;
-                        os << np0 << " " << a0/np0 << endl;
-                        os << np1 << " " << a1/np1 << endl;
-                        os << np2 << " " << a2/np2 << endl;
-                        const int nsp = s_.atoms.nsp();
-                        for ( int is = 0; is < nsp; is++ )
-                        {
-                             Species* sp = s_.atoms.species_list[is];
-                             const int z = sp->atomic_number();
-                             const int na = s_.atoms.na(is);
-                             for ( int ia = 0; ia < na; ia++ )
-                             {
-                                      Atom *ap = s_.atoms.atom_list[is][ia];
-                                      os << setprecision(5);
-                                      os << z << " " << ((double) z) << " " << ap->position() << endl;
-
-                             }
-                        }
-                        os.setf(ios::scientific,ios::floatfield);
-                        os << setprecision(5);
-                        for ( int i = 0; i < np0; i++ )
-                        {
-                                const int ip = (i + np0/2 ) % np0;
-                                for ( int j = 0; j < np1; j++ )
-                                {
-                                    const int jp = (j + np1/2 ) % np1;
-                                    for ( int k = 0; k < np2; k++ )
-                                    {
-                                           const int kp = (k + np2/2 ) % np2;
-                                           os << setw(13) << tmpr[ip+np0*(jp+np1*kp)];
-                                           if ( ( k % 6 ) == 5 ) os<<endl;
-                                    }
-                                    if ( ( np2 % 6 ) != 0 ) os<<endl;
-                                }
-                        }
-                        os.close();
-                 }
-
-
-              }
-           }
-       }
-    }
 // DCY print projected occupations to output file
 // // if saveprojfreq variable set, save cij matrices in text format
 // //CS
@@ -1568,6 +1289,82 @@ if (s_.ctrl.saveholefreq > 0)
        s_.previous_wf = new Wavefunction(s_.wf);
        (*s_.previous_wf) = s_.wf;
     }
+
+    if ( compute_natural_orbital)
+    {
+         SlaterDet& sd = *(wf.sd(0,0));
+         tdnto->update(wf.sd(0,0)->c());
+         tdnto->update_NTO();
+         if ( oncoutpe )
+         {
+            cout << " <nto_set size=\"" << sd.nst() << "\">" << endl;
+            for ( int i = 0; i < sd.nst(); i++ )
+            {
+                cout.setf(ios::fixed, ios::floatfield);
+                cout.setf(ios::right, ios::adjustfield);
+                cout << "   <occupancy=\"" << setprecision(10)
+                     << setw(12) << tdnto->nto(i) << " \"/>"<<endl;
+            }
+            cout << " </nto_set>" << endl;
+         }
+    }
+         if (s_.ctrl.saventofreq>0 || s_.ctrl.saveholefreq>0 || s_.ctrl.saveelecfreq>0 || s_.ctrl.projhole || s_.ctrl.projelec)
+         { 
+            bool print_hole =(s_.ctrl.mditer%s_.ctrl.saveholefreq == 0 && s_.ctrl.saveholefreq>0); 
+            bool print_elec =(s_.ctrl.mditer%s_.ctrl.saveelecfreq == 0 && s_.ctrl.saveelecfreq>0);
+            bool print_NTO =(s_.ctrl.mditer%s_.ctrl.saventofreq == 0 && s_.ctrl.saventofreq>0);  
+             
+	    bool proj_hole =s_.ctrl.projhole;
+            bool proj_elec =s_.ctrl.projelec;
+            bool eff_elec = s_.ctrl.eff_elec;
+            bool sorted_hole = s_.ctrl.sorted_hole;
+            //bool save_hole = (s_.ctrl.mdier == niter);
+            if ( print_NTO||print_elec||print_hole || proj_hole || proj_elec )
+            {
+               tdnto->update_NTO();
+               if (print_elec||print_hole ||proj_hole ||proj_elec)
+               {
+                     tdnto->update_hole();
+                     if (print_elec || proj_elec && !eff_elec)
+                       tdnto->update_elec();
+                     if (print_elec ||proj_elec && eff_elec)
+                       tdnto->update_effective_elec();
+               }
+             } 
+             if (proj_hole && !sorted_hole)
+                  tdnto->proj_hole_orbital();
+             if (proj_hole && sorted_hole)
+                  tdnto->proj_sorted_hole_orbital();
+             //if (proj_effelec)
+             //     tdnto->proj_effective_elec_orbital();
+             if (proj_elec)
+                  tdnto->proj_elec_orbital();  
+             //if (save_hole)
+             //{  
+             //     tdnto->save_hole_orbital();
+             //}
+             if (print_NTO) 
+             {
+                ostringstream oss;
+                oss.width(7);  oss.fill('0');  oss << s_.ctrl.mditer; 
+                string denfilename = s_.ctrl.saventofilebase + "." + oss.str() + ".cube";
+                tdnto->print_nto_orbital(s_.ctrl.ntoindex,denfilename);
+             }
+             if (print_elec)
+             {
+                ostringstream oss;
+                oss.width(7);  oss.fill('0');  oss << s_.ctrl.mditer;
+                string denfilename = s_.ctrl.saveelecfilebase + "." + oss.str() + ".cube";
+                tdnto->print_elec_orbital(s_.ctrl.elecindex,denfilename);
+             }
+             if (print_hole)
+             {
+                ostringstream oss;
+                oss.width(7);  oss.fill('0');  oss << s_.ctrl.mditer;
+                string denfilename = s_.ctrl.saveholefilebase + "." + oss.str() + ".cube";
+                tdnto->print_hole_orbital(s_.ctrl.holeindex,denfilename);
+             }
+         }
 
     if ( compute_mlwf )
     {
