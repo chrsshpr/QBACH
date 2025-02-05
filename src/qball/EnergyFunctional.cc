@@ -574,9 +574,9 @@ void EnergyFunctional::update_vhxc(void) {
     vbasis_->context().dsum(2,1,&tsum_corr[0],2);
     eh_corr = tsum_corr[0];
     eewald_corr = tsum_corr[1];
-    //cout << "eh_corr " << eh_corr << endl;
-    //cout << "eewald_corr " << eewald_corr << endl;
-    //cout << cell.a(0) << " " << cell.a(1) << " " << cell.a(2) << endl;
+    cout << "eh_corr " << eh_corr << endl;
+    cout << "eewald_corr " << eewald_corr << endl;
+    cout << cell.a(0) << " " << cell.a(1) << " " << cell.a(2) << endl;
   }
 //YY MT 
 
@@ -2425,8 +2425,8 @@ void EnergyFunctional::mt_init_wg_corr(void)
   int idx0 = vft->np0() * vft->np1() * vft->np2_first();
   int idxx, i, j, k;
   D3vector r;
-  //cout << "idx0 " << idx0 << endl;
-  //cout << "smooth_coulomb_r " << smooth_coulomb_r(0.5) << endl;
+  cout << "idx0 " << idx0 << endl;
+  cout << "smooth_coulomb_r " << smooth_coulomb_r(0.5) << endl;
   aux.resize(vft->np012loc());
   aux_g.resize(vbasis_->localsize());
   for(int ir = 0; ir < vft->np012loc(); ir++) {
@@ -2447,7 +2447,7 @@ void EnergyFunctional::mt_init_wg_corr(void)
   wg_corr.resize(vbasis_->localsize());
   int gstart = 0;
   if (g2[0] < 1.0e-8) gstart = 1; 
-  //cout << "gstart = " << gstart << endl;
+  cout << "gstart = " << gstart << endl;
 
   for(int ig = gstart; ig < ngloc; ig++) {
     wg_corr[ig] = omega * real(aux_g[ig]) - smooth_coulomb_g(g2[ig]);
