@@ -1415,7 +1415,7 @@ void ComplexMatrix::zger(complex<double> alpha,
   assert(x.n()==m_);
   assert(y.n()==n_);
 
-#if SCALAPACK
+#ifdef HAVE_SCALAPACK
   int ione=1;
 
   int ix = kx+1;
@@ -1430,10 +1430,10 @@ void ComplexMatrix::zger(complex<double> alpha,
                        val,&ione,&ione,desc_);
 #else
 
-  int incx = x.m();
-  int incy = y.m();
-  zgerc(&m_,&n_,&alpha,&x.val[kx*x.m()],&incx,
-                      &y.val[ky*y.m()],&incy,val,&m_);
+  //CS on Sycamore zger fails with AOCL BLIS, so force SCALAPACK
+  std::cerr << "Error: SCALAPACK is required for TD-MLWFs." << std::endl;
+  exit(EXIT_FAILURE);  
+
 #endif
 
 }
