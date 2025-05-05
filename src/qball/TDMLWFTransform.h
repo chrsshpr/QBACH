@@ -60,6 +60,8 @@ class TDMLWFTransform
   std::vector<std::vector<std::complex<double> > > adiag_; //DCY, diagonal elements
   std::vector<std::vector<double> > adiag_real_;
   std::vector<std::vector<double> > adiag_imag_; 
+  static std::vector<std::vector<bool>> saved_overlap_;
+  static bool overlaps_saved_;
 
   SlaterDet *sdcosx_, *sdsinx_,
             *sdcosy_, *sdsiny_,
@@ -93,6 +95,7 @@ class TDMLWFTransform
   bool overlap(double epsilon, int i, int j);  
   double pair_fraction(double epsilon) ;
   double total_overlaps(double epsilon);
+  bool get_saved_overlap(double epsilon, int i, int j);
 
   D3vector center(int i);
   D3vector dipole(void);

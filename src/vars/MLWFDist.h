@@ -46,14 +46,16 @@ class MLWFDist : public Var
 
   int set ( int argc, char **argv )
   {
-    if ( argc != 2 )
+    if ( argc != 2 && argc != 3)
     {
       if ( ui->oncoutpe() )
-      cout << " MLWFDist takes only one value" << endl;
+      cout << " MLWFDist takes one required value (distance) and an optional argument to fix the selected pairs" << endl;
       return 1;
     }
 
     double v = atof(argv[1]);
+    s->ctrl.fix_pairs = false;  
+
     if ( v < 0 )
     {
       if ( ui->oncoutpe() )
@@ -61,11 +63,22 @@ class MLWFDist : public Var
       return 1;
     }
 
-    s->ctrl.MLWFDist = v;
+    if (argc ==3) {
+      std::string fix_arg(argv[2]);
+      if (fix_arg == "Fix_pairs" || fix_arg == "fix_pairs")
+      {
+    	s->ctrl.fix_pairs = true;
+      }
+      else { 
+	if ( ui->oncoutpe() )
+           cout << "Only takes fix_pairs as argument" << endl;
+        return 1;
+      }
+    }
 
+    s->ctrl.MLWFDist = v;
     return 0;
   }
-
   string print (void) const
   {
      ostringstream st;
@@ -79,6 +92,7 @@ class MLWFDist : public Var
   MLWFDist(Sample *sample) : s(sample)
   {
     s->ctrl.MLWFDist = 0;
+    s->ctrl.fix_pairs = false;
   }
 };
 #endif

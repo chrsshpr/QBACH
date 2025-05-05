@@ -165,6 +165,7 @@ struct Control
   int blHF[3];
   double btHF;
   double MLWFDist;
+  bool fix_pairs;
   double hf;
   double alpha_PBE0;
   double alpha_RSH;

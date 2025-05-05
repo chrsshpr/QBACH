@@ -276,7 +276,7 @@ class LIBXCFunctional : public XCFunctional
                        else
                          return true;
                      };
-  bool ismGGA() const { if (_xcfamily == XC_FAMILY_MGGA)
+  bool ismGGA() const { if (_xcfamily == XC_FAMILY_MGGA)  //!CS add statement here for internal SCAN
                          return true;
                        else
                          return false;

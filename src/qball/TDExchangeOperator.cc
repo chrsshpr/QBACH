@@ -194,6 +194,7 @@ ExchangeOperator::ExchangeOperator( Sample& s, double alpha_sx,
 
   use_bisection_ = s.ctrl.btHF > 0.0;
   compute_mlwf = s.ctrl.MLWFDist > 0.0;
+  bool fix = s.ctrl.fix_pairs;
 
   // if only at gamma
   if ( gamma_only_ )
@@ -1016,7 +1017,7 @@ double ExchangeOperator::compute_exchange_at_gamma_(const Wavefunction &wf,
         }
      }
 
-    else if ( compute_mlwf )   // transform is applied with TDMLWF diagonalization for TDDFT 
+    else if ( compute_mlwf && s_.ctrl.fix_pairs == false )   // transform is applied with TDMLWF diagonalization for TDDFT 
     {
       assert(wfc_.nspin()==1); //TDMLWF pair selection only works with spin unpolarized systems
       tdmlwft = new TDMLWFTransform(*wfc_.sd(0,0));
@@ -1036,6 +1037,32 @@ double ExchangeOperator::compute_exchange_at_gamma_(const Wavefunction &wf,
             }
            }
         } 
+    }
+    else if ( compute_mlwf && s_.ctrl.fix_pairs == true )
+    {
+      assert(wfc_.nspin()==1); //TDMLWF pair selection only works with spin unpolarized systems
+      tdmlwft = new TDMLWFTransform(*wfc_.sd(0,0));
+      SlaterDet& sd = *(wfc_.sd(0,0));
+      tdmlwft->update();
+      tdmlwft->compute_transform();
+        if ( oncoutpe ) {
+          cout << "pair fraction: " << tdmlwft->pair_fraction(s_.ctrl.MLWFDist) << endl;
+          tdmlwft->total_overlaps(s_.ctrl.MLWFDist);
+           for ( int i = 0; i < sd.nst(); i++ )
+           {
+            for ( int j = 0; j < sd.nst(); j++ )
+            {
+              bool overlap = tdmlwft -> get_saved_overlap(s_.ctrl.MLWFDist,i,j);
+	      if (overlap) {
+                cout << i << " " << j << " " << overlap << " <saved_pairs> " << tdmlwft->distance(i,j) << " distance " <<  endl;
+	      }
+	      bool overlap1 = tdmlwft -> overlap(s_.ctrl.MLWFDist,i,j);
+	      if (overlap1) {
+	        cout << i << " " << j << " " << overlap1 << " <pairs on the fly> " << tdmlwft->distance(i,j) << " distance " <<  endl;
+	      }
+            }
+           }
+        }
     }
 
     // if using bisection, localize the wave functions
@@ -1186,8 +1213,13 @@ double ExchangeOperator::compute_exchange_at_gamma_(const Wavefunction &wf,
             // determine the overlap between those two states
             //bool overlap_ij = ( !use_bisection_ ||
               //bisection_[ispin]->overlap(localization_,iGlobI,iGlobJ) );
-            bool overlap_ij = ( !compute_mlwf  ||  
-	      tdmlwft -> overlap(s_.ctrl.MLWFDist,iGlobI,iGlobJ) );
+	    bool overlap_ij;
+ 	    if (s_.ctrl.fix_pairs == true)
+	    {
+  	      overlap_ij = (!compute_mlwf || tdmlwft->get_saved_overlap(s_.ctrl.MLWFDist, iGlobI, iGlobJ));
+	    } else {
+              overlap_ij = (!compute_mlwf || tdmlwft->overlap(s_.ctrl.MLWFDist, iGlobI, iGlobJ));
+            } 
 
             // use the chess board condition to
             // optimize the distribution of work on
@@ -1892,7 +1924,7 @@ double ExchangeOperator::vint(double g2)
     const double x = g2 * fac;
     if ( g2 == 0 )
       // return only the finite limit as g2 -> 0 //factor of two need when using complex basis 
-      return - ( alpha_sx_ - beta_sx_ ) * fac * 2;
+      return - ( alpha_sx_ - beta_sx_ ) * fac *  2;
     else if ( g2 < 1.e-6 )
       // Use Taylor expansion of the regular part near origin
       return alpha_sx_ / g2 + fac * beta_sx_ * ( 1.0 - 0.5 * x );

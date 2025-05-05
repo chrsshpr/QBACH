@@ -46,9 +46,13 @@
 
 using namespace std;
 
+//CS static mat for saved overlaps to read at every iteration 
+bool TDMLWFTransform::overlaps_saved_ = false;
+std::vector<std::vector<bool>> TDMLWFTransform::saved_overlap_;
+
 ////////////////////////////////////////////////////////////////////////////////
 TDMLWFTransform::TDMLWFTransform(const SlaterDet& sd) : sd_(sd),  
-cell_(sd.basis().cell()), ctxt_(sd.context()),  bm_(BasisMapping(sd.basis())) 
+cell_(sd.basis().cell()), ctxt_(sd.context()),  bm_(BasisMapping(sd.basis()))  
 {
   a_.resize(6);
   adiag_.resize(6);
@@ -221,7 +225,7 @@ void TDMLWFTransform::update(void)
 void TDMLWFTransform::compute_transform(void)
 {
   const int maxsweep = 100;
-  const double tol = 1.e-8;
+  const double tol = 1.e-7;
   int nsweep = jade_complex(maxsweep,tol,a_,*u_,adiag_); 
   //int nsweep = jade_complex(maxsweep,tol,a_,*u_,*tmpmat_,adiag_); 
   // Joint approximate diagonalization step.
@@ -317,7 +321,55 @@ bool TDMLWFTransform::overlap(double epsilon, int i, int j)
   // return false if the states don't overlap
   return false;
 }
+////////////////////////////////////////////////////////////////////////////////
+bool TDMLWFTransform::get_saved_overlap(double epsilon, int i, int j)
+{
+    if (!overlaps_saved_)
+    {
+        std::cout << "Overlaps not saved yet, saving from this iteration on." << std::endl;
 
+        int n = sd_.nst();
+        saved_overlap_.resize(n, std::vector<bool>(n, false));
+
+        // Try to read from file first
+        std::ifstream infile("saved_overlap.dat");
+        if (infile.is_open())
+        {
+            std::cout << "Found saved_overlap.dat. Loading overlaps..." << std::endl;
+            for (int ii = 0; ii < n; ++ii)
+            {
+                for (int jj = 0; jj < n; ++jj)
+                {
+                    int val;
+                    infile >> val;
+                    saved_overlap_[ii][jj] = static_cast<bool>(val);
+                }
+            }
+            infile.close();
+        }
+	else { 
+          for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                saved_overlap_[i][j] = overlap(epsilon, i, j); 
+            }
+          }
+
+            // Save to file
+            std::ofstream outfile("saved_overlap.dat");
+            for (int ii = 0; ii < n; ++ii)
+            {
+                for (int jj = 0; jj < n; ++jj)
+                {
+                    outfile << saved_overlap_[ii][jj] << " ";
+                }
+                outfile << "\n";
+            }
+            outfile.close();
+        }
+        overlaps_saved_ = true; // Mark overlaps as saved
+    }
+    else return saved_overlap_[i][j];
+}
 ////////////////////////////////////////////////////////////////////////////////
 double TDMLWFTransform::total_overlaps(double epsilon)
 {
@@ -350,8 +402,14 @@ double TDMLWFTransform::pair_fraction(double epsilon)
     int count = 0;
     for ( int j = i+1; j < sd_.nst() ; j++ )
     {
-      if ( overlap(epsilon,i,j) )
-        count++;
+      if (overlaps_saved_) {
+	  if (saved_overlap_[i][j]) 
+	     count++;
+      }
+      else { 
+	if (overlap(epsilon,i,j))
+          count++;
+      }
     }
     sum += count;
   }
