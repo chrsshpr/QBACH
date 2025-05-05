@@ -1054,11 +1054,11 @@ double ExchangeOperator::compute_exchange_at_gamma_(const Wavefunction &wf,
             {
               bool overlap = tdmlwft -> get_saved_overlap(s_.ctrl.MLWFDist,i,j);
 	      if (overlap) {
-                cout << i << " " << j << " " << overlap << " <saved_pairs> " << tdmlwft->distance(i,j) << " distance " <<  endl;
+                //cout << i << " " << j << " " << overlap << " <saved_pairs> " << tdmlwft->distance(i,j) << " distance " <<  endl;
 	      }
 	      bool overlap1 = tdmlwft -> overlap(s_.ctrl.MLWFDist,i,j);
 	      if (overlap1) {
-	        cout << i << " " << j << " " << overlap1 << " <pairs on the fly> " << tdmlwft->distance(i,j) << " distance " <<  endl;
+	        //cout << i << " " << j << " " << overlap1 << " <pairs on the fly> " << tdmlwft->distance(i,j) << " distance " <<  endl;
 	      }
             }
            }

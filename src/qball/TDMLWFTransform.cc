@@ -333,13 +333,10 @@ bool TDMLWFTransform::get_saved_overlap(double epsilon, int i, int j)
 
         // Try to read from file first
         std::ifstream infile("saved_overlap.dat");
-        if (infile.is_open())
-        {
+        if (infile.is_open()) {
             std::cout << "Found saved_overlap.dat. Loading overlaps..." << std::endl;
-            for (int ii = 0; ii < n; ++ii)
-            {
-                for (int jj = 0; jj < n; ++jj)
-                {
+            for (int ii = 0; ii < n; ++ii) {
+                for (int jj = 0; jj < n; ++jj) {
                     int val;
                     infile >> val;
                     saved_overlap_[ii][jj] = static_cast<bool>(val);
@@ -356,10 +353,8 @@ bool TDMLWFTransform::get_saved_overlap(double epsilon, int i, int j)
 
             // Save to file
             std::ofstream outfile("saved_overlap.dat");
-            for (int ii = 0; ii < n; ++ii)
-            {
-                for (int jj = 0; jj < n; ++jj)
-                {
+            for (int ii = 0; ii < n; ++ii) {
+                for (int jj = 0; jj < n; ++jj) {
                     outfile << saved_overlap_[ii][jj] << " ";
                 }
                 outfile << "\n";
@@ -368,7 +363,7 @@ bool TDMLWFTransform::get_saved_overlap(double epsilon, int i, int j)
         }
         overlaps_saved_ = true; // Mark overlaps as saved
     }
-    else return saved_overlap_[i][j];
+    return saved_overlap_[i][j];
 }
 ////////////////////////////////////////////////////////////////////////////////
 double TDMLWFTransform::total_overlaps(double epsilon)
@@ -403,7 +398,7 @@ double TDMLWFTransform::pair_fraction(double epsilon)
     for ( int j = i+1; j < sd_.nst() ; j++ )
     {
       if (overlaps_saved_) {
-	  if (saved_overlap_[i][j]) 
+	  if (get_saved_overlap(epsilon, i, j)) 
 	     count++;
       }
       else { 
