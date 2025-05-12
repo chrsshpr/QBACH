@@ -326,15 +326,12 @@ bool TDMLWFTransform::get_saved_overlap(double epsilon, int i, int j)
 {
     if (!overlaps_saved_)
     {
-        std::cout << "Overlaps not saved yet, saving from this iteration on." << std::endl;
-
         int n = sd_.nst();
         saved_overlap_.resize(n, std::vector<bool>(n, false));
 
         // Try to read from file first
         std::ifstream infile("saved_overlap.dat");
         if (infile.is_open()) {
-            std::cout << "Found saved_overlap.dat. Loading overlaps..." << std::endl;
             for (int ii = 0; ii < n; ++ii) {
                 for (int jj = 0; jj < n; ++jj) {
                     int val;

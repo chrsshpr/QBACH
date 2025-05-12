@@ -1006,14 +1006,14 @@ double ExchangeOperator::compute_exchange_at_gamma_(const Wavefunction &wf,
         if ( oncoutpe ) {
           cout << "pair fraction: " << tdmlwft->pair_fraction(s_.ctrl.MLWFDist) << endl;
           tdmlwft->total_overlaps(s_.ctrl.MLWFDist);
-	   for ( int i = 0; i < sd.nst(); i++ )
+	   /*for ( int i = 0; i < sd.nst(); i++ )
            {
 	    for ( int j = 0; j < sd.nst(); j++ )
             {
               bool overlap = tdmlwft -> overlap(s_.ctrl.MLWFDist,i,j);
               //cout << i << " " << j << " " << overlap << " <overlap/> " << tdmlwft->distance(i,j) << " distance " <<  endl;
             } 
-           }
+           }*/
         }
      }
 
@@ -1028,14 +1028,14 @@ double ExchangeOperator::compute_exchange_at_gamma_(const Wavefunction &wf,
         if ( oncoutpe ) {
           cout << "pair fraction: " << tdmlwft->pair_fraction(s_.ctrl.MLWFDist) << endl;
           tdmlwft->total_overlaps(s_.ctrl.MLWFDist);
-           for ( int i = 0; i < sd.nst(); i++ )
+           /*for ( int i = 0; i < sd.nst(); i++ )
            {
             for ( int j = 0; j < sd.nst(); j++ )
             {
               bool overlap = tdmlwft -> overlap(s_.ctrl.MLWFDist,i,j);
               //cout << i << " " << j << " " << overlap << " <overlap/> " << tdmlwft->distance(i,j) << " distance " <<  endl;
             }
-           }
+           }*/
         } 
     }
     else if ( compute_mlwf && s_.ctrl.fix_pairs == true )
@@ -1048,7 +1048,7 @@ double ExchangeOperator::compute_exchange_at_gamma_(const Wavefunction &wf,
         if ( oncoutpe ) {
           cout << "pair fraction: " << tdmlwft->pair_fraction(s_.ctrl.MLWFDist) << endl;
           tdmlwft->total_overlaps(s_.ctrl.MLWFDist);
-           for ( int i = 0; i < sd.nst(); i++ )
+           /*for ( int i = 0; i < sd.nst(); i++ )
            {
             for ( int j = 0; j < sd.nst(); j++ )
             {
@@ -1061,7 +1061,7 @@ double ExchangeOperator::compute_exchange_at_gamma_(const Wavefunction &wf,
 	        //cout << i << " " << j << " " << overlap1 << " <pairs on the fly> " << tdmlwft->distance(i,j) << " distance " <<  endl;
 	      }
             }
-           }
+           }*/
         }
     }
 
