@@ -974,23 +974,12 @@ double ExchangeOperator::compute_exchange_at_gamma_(const Wavefunction &wf,
   for ( int ispin = 0; ispin < wf.nspin(); ispin++ ) //wfc_
   {
     SlaterDet& sd = *(wf.sd(ispin,0)); //wfc_
-    //SlaterDet& sd1 = *(wf.sd(ispin,0)); //wfc_
 
     // use copy to correctly read empty state occupations 
     //SlaterDet& sd_c = *(wfc_.sd(0,0));
 
     ComplexMatrix& c = sd.c();
     const int nst = sd.nst();
-
-
-    /*ComplexMatrix &wf1(s_.wf.sd(ispin,0)->c());
-    ComplexMatrix &wf2(s_.wf.sd(ispin,0)->c());
-    const Context &ctxt = s_.wf.sd(0,0)->c().context();
-    int nb = c.nb();
-    ComplexMatrix test(ctxt,nst,nst,nb,nb);
-    test.gemm('c','n',1.0,wf1,wf2,0.0);
-    test.gemm('c','n',1.0,sd.c(),sd1.c(),0.0);
-    test.print(cout);*/
 
     if ( compute_mlwf && !tddft_involved_)
     { 
@@ -1000,19 +989,10 @@ double ExchangeOperator::compute_exchange_at_gamma_(const Wavefunction &wf,
       tdmlwft->update();
       tdmlwft->compute_transform();
 
-      //if ( !tddft_involved_ )  // for non-tddft, apply transfrom so wavefxn remains in wannier gauage 
         tdmlwft->apply_transform(sd);
         if ( oncoutpe ) {
           cout << "pair fraction: " << tdmlwft->pair_fraction(s_.ctrl.MLWFDist) << endl;
-          tdmlwft->total_overlaps(s_.ctrl.MLWFDist);
-	   for ( int i = 0; i < sd.nst(); i++ )
-           {
-	    for ( int j = 0; j < sd.nst(); j++ )
-            {
-              bool overlap = tdmlwft -> overlap(s_.ctrl.MLWFDist,i,j);
-              //cout << i << " " << j << " " << overlap << " <overlap/> " << tdmlwft->distance(i,j) << " distance " <<  endl;
-            } 
-           }
+          cout << "total overlaps: " << tdmlwft->total_overlaps(s_.ctrl.MLWFDist) << " possible overlaps: " << sd.nst() *sd.nst() << " includes self " << endl;
         }
      }
 
@@ -1023,18 +1003,9 @@ double ExchangeOperator::compute_exchange_at_gamma_(const Wavefunction &wf,
       SlaterDet& sd = *(wfc_.sd(0,0));
       tdmlwft->update();
       tdmlwft->compute_transform();
-        //tdmlwft->apply_transform(sd);
         if ( oncoutpe ) {
           cout << "pair fraction: " << tdmlwft->pair_fraction(s_.ctrl.MLWFDist) << endl;
           tdmlwft->total_overlaps(s_.ctrl.MLWFDist);
-           for ( int i = 0; i < sd.nst(); i++ )
-           {
-            for ( int j = 0; j < sd.nst(); j++ )
-            {
-              bool overlap = tdmlwft -> overlap(s_.ctrl.MLWFDist,i,j);
-              //cout << i << " " << j << " " << overlap << " <overlap/> " << tdmlwft->distance(i,j) << " distance " <<  endl;
-            }
-           }
         } 
     }
 
@@ -1188,7 +1159,7 @@ double ExchangeOperator::compute_exchange_at_gamma_(const Wavefunction &wf,
               //bisection_[ispin]->overlap(localization_,iGlobI,iGlobJ) );
             bool overlap_ij = ( !compute_mlwf  ||  
 	      tdmlwft -> overlap(s_.ctrl.MLWFDist,iGlobI,iGlobJ) );
-
+	      
             // use the chess board condition to
             // optimize the distribution of work on
             // each process:
@@ -1203,6 +1174,7 @@ double ExchangeOperator::compute_exchange_at_gamma_(const Wavefunction &wf,
               //if ( iGlobI >= iGlobJ )
               if ( iGlobI >= iGlobJ && overlap_ij )
               {
+		//cout << overlap_ij << iGlobI << endl;
                 first_member_of_pair.push_back( i );
                 second_member_of_pair.push_back( j );
                 nPair++;
