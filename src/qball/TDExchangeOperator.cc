@@ -1005,7 +1005,7 @@ double ExchangeOperator::compute_exchange_at_gamma_(const Wavefunction &wf,
       tdmlwft->compute_transform();
         if ( oncoutpe ) {
           cout << "pair fraction: " << tdmlwft->pair_fraction(s_.ctrl.MLWFDist) << endl;
-          tdmlwft->total_overlaps(s_.ctrl.MLWFDist);
+          cout << "total overlaps: " << tdmlwft->total_overlaps(s_.ctrl.MLWFDist) << " possible overlaps: " << sd.nst() *sd.nst() << " includes self " << endl;
         } 
     }
 
