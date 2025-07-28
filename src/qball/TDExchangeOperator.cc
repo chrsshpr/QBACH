@@ -1122,8 +1122,8 @@ double ExchangeOperator::compute_exchange_at_gamma_(const Wavefunction &wf,
     // local occupation numbers
     const double* occ = sd.occ_ptr(); //sd copy allows for usage of empty states 
     for ( int i = 0; i < sd.nstloc(); i++ )  
-      occ_kj_[i]=2.0;
-      //occ_kj_[i]=occ[c.jglobal(i)];
+      //occ_kj_[i]=2.0;
+      occ_kj_[i]=occ[c.jglobal(i)];
       //occ_kj_[i]=sd.occ(c.jglobal(i));
     //}
 
@@ -1892,7 +1892,7 @@ double ExchangeOperator::vint(double g2)
     const double x = g2 * fac;
     if ( g2 == 0 )
       // return only the finite limit as g2 -> 0 //factor of two need when using complex basis 
-      return - ( alpha_sx_ - beta_sx_ ) * fac * 2;
+      return - ( alpha_sx_ - beta_sx_ ) * fac;
     else if ( g2 < 1.e-6 )
       // Use Taylor expansion of the regular part near origin
       return alpha_sx_ / g2 + fac * beta_sx_ * ( 1.0 - 0.5 * x );
