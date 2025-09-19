@@ -297,9 +297,9 @@ void SlaterDet::resize(const UnitCell& cell, const UnitCell& refcell,
       m!=c_.m() || n!=c_.n() || mb!=c_.mb() || nb!=c_.nb();
     c_.resize(m,n,mb,nb);
 
-    if (needs_reset && ctxt_.oncoutpe())
-       cout << "SlaterDet.resize:  new c dimensions = " << m << "x" << n
-            << "   (" << mb << "x" << nb << " blocks, local data size on pe 0 = " << c_.mloc() << "x" << c_.nloc() << ")" << " -->" << endl;
+    //if (needs_reset && ctxt_.oncoutpe())
+       //cout << "SlaterDet.resize:  new c dimensions = " << m << "x" << n
+            //<< "   (" << mb << "x" << nb << " blocks, local data size on pe 0 = " << c_.mloc() << "x" << c_.nloc() << ")" << " -->" << endl;
     
     if ( needs_reset )
       reset();
