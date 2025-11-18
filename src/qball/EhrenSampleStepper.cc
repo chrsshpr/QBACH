@@ -731,17 +731,19 @@ void EhrenSampleStepper::step(int niter)
           //ortho.print(cout);
           //test.clear();
 
-          DoubleMatrix ortho_proxy(ortho);
+          //DoubleMatrix ortho_proxy(ortho);
 
-          std::vector<double> occ_result, occ_current, occ_result2;
-          occ_result.resize((wf.sd(ispin,ikp)->c()).n());
-          occ_result2.resize((wf.sd(ispin,ikp)->c()).n());
-          occ_current.resize((wf.sd(ispin,ikp)->c()).n());
-          occ_result.clear();
-          occ_current.clear();
+          //std::vector<double> occ_result, occ_current, occ_result2;
+          //occ_result.resize((wf.sd(ispin,ikp)->c()).n());
+          //occ_result2.resize((wf.sd(ispin,ikp)->c()).n());
+          //occ_current.resize((wf.sd(ispin,ikp)->c()).n());
+          //occ_result.clear();
+          //occ_current.clear();
+          std::vector<double> occ_result(wf.sd(ispin, ikp)->c().n(), 0.0);
+          std::vector<double> occ_current(wf.sd(ispin, ikp)->c().n(), 0.0);
 
           double ehp_count=0.0;
-          double ehp_count2=0.0;
+          //double ehp_count2=0.0;
 
           if ( onpe0 )
           {
@@ -755,10 +757,6 @@ void EhrenSampleStepper::step(int niter)
           ortho.sum_columns_square_occ(occ_result, occ_current);
           tmap["sum_col"].stop();
 
-          tmap["sum_ortho"].start();
-
-          tmap["sum_ortho"].stop();
-
           if ( onpe0 )
           {
             for (int i=0; i<(wf.sd(ispin,ikp)->c()).n(); i++)
@@ -768,7 +766,8 @@ void EhrenSampleStepper::step(int niter)
             }
             cout << "projsum = " << ehp_count << endl;
           }
-          std::string filebase = s_.ctrl.saveprojfilebase;
+
+/*          std::string filebase = s_.ctrl.saveprojfilebase;
           std::ostringstream oss;
           oss.width(8);  oss.fill('0');  oss << s_.ctrl.mditer;
           std::ostringstream oss2;
@@ -804,14 +803,14 @@ void EhrenSampleStepper::step(int niter)
                  os.write(tos.c_str(),tos.length());
                 }
                os.close();
-             }
+             }*/
        }
       }
      }
    }
 //DCY
 
-// CS if save2ndprojfreq variable set, save cij matrices in text format
+//CS if save2ndprojfreq variable set, save occupations 
     if (s_.ctrl.save2ndprojfreq > 0)
     {
      for ( int ispin = 0; ispin < (wf).nspin(); ispin++ )
@@ -826,17 +825,9 @@ void EhrenSampleStepper::step(int niter)
           ortho.gemm('c','n',1.0,(*s_.proj2nd_wf).sd(ispin,ikp)->c(),(wf).sd(ispin,ikp)->c(),0.0);
           tmap["gemm"].stop();
 
-          DoubleMatrix ortho_proxy(ortho);
-
-          std::vector<double> occ_result, occ_current, occ_result2;
-          occ_result.resize((wf.sd(ispin,ikp)->c()).n());
-          occ_result2.resize((wf.sd(ispin,ikp)->c()).n());
-          occ_current.resize((wf.sd(ispin,ikp)->c()).n());
-          occ_result.clear();
-          occ_current.clear();
-
+          std::vector<double> occ_result(wf.sd(ispin, ikp)->c().n(), 0.0);
+          std::vector<double> occ_current(wf.sd(ispin, ikp)->c().n(), 0.0);
           double ehp_count=0.0;
-          double ehp_count2=0.0;
 
           if ( onpe0 )
           {
@@ -849,10 +840,6 @@ void EhrenSampleStepper::step(int niter)
           tmap["sum_col"].start();
           ortho.sum_columns_square_occ(occ_result, occ_current);
           tmap["sum_col"].stop();
-
-          tmap["sum_ortho"].start();
-
-          tmap["sum_ortho"].stop();
 
           if ( onpe0 )
           {
